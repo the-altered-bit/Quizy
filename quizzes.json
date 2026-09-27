@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Degree Level",
+    "children": [
+      {
+        "name": "University Assistant",
+        "children": [
+          { "name": "Education Commissions", "path": "degree level/university assistant/education commissions/" },
+          { "name": "Mock 1", "path": "degree level/university assistant/mock 1/" },
+          { "name": "Mock 2", "path": "degree level/university assistant/mock 2/" },
+          { "name": "UGC NET", "path": "degree level/university assistant/ugc net/" }
+        ]
+      }
+    ]
+  },
+  { "name": "LDC Level", "path": "ldc level/" },
+  { "name": "LGS", "path": "lgs/" },
+  { "name": "Plustwo Level", "path": "plustwo level/" },
+  { "name": "UPSC/CSE 25", "path": "upsc/cse 25/" }
+]

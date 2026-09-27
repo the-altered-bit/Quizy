@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Education Commissions & Acts Quiz</title>
+<style>
+:root{
+  --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --text:#e8e9ec; --muted:#9aa0ac;
+  --accent:#7c9cff; --good:#3ecf8e; --bad:#ff6b6b; --border:#2a2f3a;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; min-height:100%; background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  display:flex; justify-content:center;
+}
+.wrap{width:100%; max-width:720px; padding:20px 16px 40px;}
+h1{font-size:1.3rem; margin:6px 0 2px;}
+.sub{color:var(--muted); font-size:0.85rem; margin-bottom:16px; line-height:1.4;}
+.card{background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:14px;}
+.progress{display:flex; justify-content:space-between; font-size:0.8rem; color:var(--muted); margin-bottom:8px;}
+.qtext{font-size:1.05rem; margin:4px 0 14px; line-height:1.4;}
+.opt{
+  display:block; width:100%; text-align:left; background:var(--panel2); color:var(--text);
+  border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:9px;
+  font-size:0.95rem; cursor:pointer; transition:border-color .15s, background .15s;
+}
+.opt:hover{border-color:var(--accent);}
+.opt.correct{background:rgba(62,207,142,0.15); border-color:var(--good);}
+.opt.wrong{background:rgba(255,107,107,0.15); border-color:var(--bad);}
+.opt:disabled{cursor:default;}
+.tag{display:inline-block; font-size:0.72rem; color:var(--accent); background:rgba(124,156,255,0.12); border:1px solid rgba(124,156,255,0.3); border-radius:999px; padding:2px 9px; margin-bottom:10px;}
+.explain{margin-top:12px; padding:12px; background:var(--panel2); border-radius:10px; font-size:0.87rem; color:var(--muted); line-height:1.5; display:none;}
+.explain.show{display:block;}
+.explain b{color:var(--text)}
+.nav{display:flex; gap:10px; margin-top:14px;}
+button.nav-btn{flex:1; padding:11px; border-radius:10px; border:1px solid var(--border); background:var(--panel2); color:var(--text); font-size:0.9rem; cursor:pointer;}
+button.nav-btn.primary{background:var(--accent); color:#0f1115; border-color:var(--accent); font-weight:600;}
+button.nav-btn:disabled{opacity:0.4; cursor:default;}
+.score-screen{text-align:center; padding:28px 16px;}
+.score-num{font-size:2.4rem; font-weight:700; color:var(--accent); margin:6px 0;}
+.note-box{background:var(--panel2); border:1px solid var(--border); border-radius:12px; padding:14px; font-size:0.85rem; color:var(--muted); line-height:1.55; margin-top:18px;}
+.note-box b{color:var(--text)}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📚 Education Commissions, Acts & Policies</h1>
+  <p class="sub">Quiz covering Unit 1 (Commissions/Acts after independence) & Unit 2 (National Policies on Education) — with sourcing notes on where this content actually shows up in UPSC CSE.</p>
+
+  <div id="quizArea"></div>
+  <div id="scoreArea" style="display:none"></div>
+
+  <div class="note-box" id="sourceNote"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+{
+  q:"The University Education Commission (1948–49), chaired by Dr. S. Radhakrishnan, primarily focused on which level of education?",
+  opts:["Primary education","Higher/university education","Vocational training only","Adult literacy"],
+  a:1,
+  exp:"<b>University Education Commission (1948–49)</b>, under Dr. S. Radhakrishnan, reviewed higher education and recommended a UGC-type body, 3-year degree courses, and improved standards in universities."
+},
+{
+  q:"The Secondary Education Commission (1952–53) is also known as the:",
+  opts:["Kothari Commission","Mudaliar Commission","Sargent Commission","Ramamurti Commission"],
+  a:1,
+  exp:"Chaired by Dr. A. Lakshmanaswami Mudaliar, it is called the <b>Mudaliar Commission</b>. It recommended diversification of secondary education and introduced the multipurpose school concept."
+},
+{
+  q:"In which year was the University Grants Commission (UGC) given statutory status by an Act of Parliament?",
+  opts:["1948","1953","1956","1968"],
+  a:2,
+  exp:"UGC functioned informally from <b>1953</b>, but the <b>UGC Act, 1956</b> gave it statutory power to coordinate, determine and maintain standards of university education and disburse grants."
+},
+{
+  q:"The Kothari Commission (Indian Education Commission), 1964–66, is credited with proposing which structural reform?",
+  opts:["The 10+2+3 education pattern","Mid-day meal scheme","Reservation in higher education","Digital classrooms"],
+  a:0,
+  exp:"Chaired by Dr. D.S. Kothari, it proposed the <b>10+2+3 structure</b>, the three-language formula, and a target of 6% of GDP on education — recommendations that shaped NPE 1968."
+},
+{
+  q:"The National Policy on Education, 1968 was formulated mainly on the recommendations of which commission?",
+  opts:["Mudaliar Commission","Radhakrishnan Commission","Kothari Commission","Yashpal Committee"],
+  a:2,
+  exp:"NPE 1968 was India's first national education policy and was based substantially on the <b>Kothari Commission (1964–66)</b> report."
+},
+{
+  q:"Which of these was a key feature specific to the National Policy on Education, 1986?",
+  opts:["Common School System debate & 'Operation Blackboard'","10+2+3 pattern introduction","Setting up of UGC","NEP replacing NPE 1968 with a 21st-century framework"],
+  a:0,
+  exp:"NPE 1986 introduced <b>Operation Blackboard</b> (minimum facilities in primary schools), Navodaya Vidyalayas, and emphasis on equity for women, SC/ST. It was modified by the 1992 Programme of Action."
+},
+{
+  q:"The 1992 revision of the National Policy on Education is officially referred to as the:",
+  opts:["Programme of Action (POA) 1992","Right to Education Act 1992","National Curriculum Framework 1992","Sarva Shiksha Abhiyan 1992"],
+  a:0,
+  exp:"The <b>Programme of Action (POA), 1992</b> revised NPE 1986, strengthening provisions on vocational education, teacher accountability, and access for disadvantaged groups."
+},
+{
+  q:"The Yashpal Committee (1993) report 'Learning Without Burden' primarily addressed:",
+  opts:["University funding models","Reducing the academic burden/stress on school children","Reservation policy in IITs","Foreign university entry into India"],
+  a:1,
+  exp:"The <b>Yashpal Committee, 1993</b> examined why schoolbags and curricula had become overloaded and recommended reducing rote learning and curriculum load — influencing later NCF documents."
+},
+{
+  q:"The National Knowledge Commission (constituted 2005, reported till 2009) was chaired by:",
+  opts:["Dr. Manmohan Singh","Sam Pitroda","Dr. K. Kasturirangan","Yashpal"],
+  a:1,
+  exp:"Headed by <b>Sam Pitroda</b>, the National Knowledge Commission (2005–2009) advised on reforms across school education, higher education, libraries, e-governance and innovation to build India as a 'knowledge society'."
+},
+{
+  q:"National Education Policy (NEP) 2020 replaced the earlier policy of which year?",
+  opts:["NPE 1968","NPE 1986 (as modified in 1992)","POA 1992 alone","Right to Education Act 2009"],
+  a:1,
+  exp:"NEP 2020, approved by the Union Cabinet on 29 July 2020, replaced the <b>National Policy on Education, 1986</b> (as modified in 1992) — the first education policy of the 21st century."
+},
+{
+  q:"Which committee's report formed the base document for drafting NEP 2020?",
+  opts:["Yashpal Committee","Kasturirangan Committee","Ramamurti Committee","Radhakrishnan Commission"],
+  a:1,
+  exp:"A committee headed by <b>Dr. K. Kasturirangan</b> drafted the policy document that fed into NEP 2020."
+},
+{
+  q:"NEP 2020 replaced the 10+2 school structure with which new pattern?",
+  opts:["8+4","5+3+3+4","6+4+2","4+4+4"],
+  a:1,
+  exp:"NEP 2020 introduced a <b>5+3+3+4</b> curricular structure (foundational, preparatory, middle, secondary) aligned with cognitive development stages, replacing the old 10+2 pattern."
+},
+{
+  q:"A common thread across University Education Commission (1948-49), Secondary Education Commission (1952-53) and the Kothari Commission (1964-66) is that all three were:",
+  opts:["Constitutional bodies","Statutory bodies under an Act","Ad hoc commissions set up by the Government of India","Permanent departments of the UGC"],
+  a:2,
+  exp:"All were <b>ad hoc commissions</b> appointed by the Government of India for a specific review, unlike the UGC (1956) which is a statutory body."
+}
+];
+
+let idx = 0, score = 0, answered = false;
+const quizArea = document.getElementById('quizArea');
+const scoreArea = document.getElementById('scoreArea');
+
+function render(){
+  const item = QUESTIONS[idx];
+  answered = false;
+  quizArea.innerHTML = `
+    <div class="card">
+      <div class="progress"><span>Question ${idx+1} / ${QUESTIONS.length}</span><span>Score: ${score}</span></div>
+      <div class="qtext">${item.q}</div>
+      <div id="opts"></div>
+      <div class="explain" id="explain"><b>Why:</b> ${item.exp}</div>
+      <div class="nav">
+        <button class="nav-btn" id="prevBtn" ${idx===0?'disabled':''}>← Previous</button>
+        <button class="nav-btn primary" id="nextBtn" disabled>${idx===QUESTIONS.length-1?'Finish':'Next →'}</button>
+      </div>
+    </div>`;
+  const optsDiv = document.getElementById('opts');
+  item.opts.forEach((opt,i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = opt;
+    b.onclick = () => selectAnswer(i);
+    optsDiv.appendChild(b);
+  });
+  document.getElementById('prevBtn').onclick = () => { if(idx>0){idx--; render();} };
+  document.getElementById('nextBtn').onclick = () => {
+    if(idx < QUESTIONS.length-1){ idx++; render(); } else { showScore(); }
+  };
+}
+
+function selectAnswer(choice){
+  if(answered) return;
+  answered = true;
+  const item = QUESTIONS[idx];
+  const btns = document.querySelectorAll('#opts .opt');
+  btns.forEach((b,i)=>{
+    b.disabled = true;
+    if(i === item.a) b.classList.add('correct');
+    else if(i === choice) b.classList.add('wrong');
+  });
+  if(choice === item.a) score++;
+  document.getElementById('explain').classList.add('show');
+  document.getElementById('nextBtn').disabled = false;
+  document.querySelector('.progress span:last-child').textContent = 'Score: ' + score;
+}
+
+function showScore(){
+  quizArea.style.display = 'none';
+  scoreArea.style.display = 'block';
+  const pct = Math.round((score/QUESTIONS.length)*100);
+  scoreArea.innerHTML = `
+    <div class="card score-screen">
+      <div>You scored</div>
+      <div class="score-num">${score} / ${QUESTIONS.length}</div>
+      <div style="color:var(--muted)">${pct}% correct</div>
+      <div class="nav">
+        <button class="nav-btn primary" id="restartBtn">Restart Quiz</button>
+      </div>
+    </div>`;
+  document.getElementById('restartBtn').onclick = () => {
+    idx = 0; score = 0;
+    quizArea.style.display = 'block';
+    scoreArea.style.display = 'none';
+    render();
+  };
+}
+
+document.getElementById('sourceNote').innerHTML =
+  `<b>Which exam actually asks these, and how much?</b><br>
+  Being straight about the research: this exact topic list (Radhakrishnan/Mudaliar/Kothari Commissions, UGC Act 1956, NPE 1968/1986/1992, NEP 2020) reads like a <b>State PSC / TET / NET-SET / teacher-recruitment</b> syllabus — that's where you'll find the largest volume of direct one-line factual MCQs on chairmen, years and report names.<br><br>
+  In genuine <b>UPSC Civil Services Exam (CSE)</b>, this content rarely appears as standalone Prelims trivia. It shows up as analytical <b>Mains GS Paper-II</b> questions under "issues relating to development of education", for example:<br>
+  • <b>UPSC CSE Mains 2020, GS-II (15 marks):</b> on NEP 2020's alignment with SDG-4 and its restructuring of the education system.<br>
+  • <b>UPSC CSE Mains 2026, GS-II (15 marks):</b> whether education should be treated as a welfare obligation or a strategic investment, referencing RTE, NEP 2020 and the Kothari Commission's 6%-of-GDP target.<br><br>
+  So by frequency, <b>Mains GS Paper-II</b> is the UPSC CSE paper that draws on this syllabus the most (roughly one education-policy essay-type question every few years), not Prelims. The MCQ-style questions above are built from the syllabus content itself for revision — they mirror the style commonly seen in State PSC/NET-SET exams on this same topic, not verified verbatim UPSC CSE Prelims questions.`;
+
+render();
+</script>
+</body>
+</html>

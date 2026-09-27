@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>The Education Gazette — Policy Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFE1;
+    --paper-dark:#EAE0C8;
+    --ink:#1F2A38;
+    --ink-soft:rgba(31,42,56,0.62);
+    --seal:#7A1F2B;
+    --seal-bright:#9C2C3A;
+    --gold:#A67C2E;
+    --gold-bright:#C9974A;
+    --good:#2F6B4F;
+    --good-bg:#E4EEE6;
+    --bad:#7A1F2B;
+    --bad-bg:#F3E4E2;
+    --rule:rgba(31,42,56,0.18);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    background:var(--paper);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(166,124,46,0.06), transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(122,31,43,0.05), transparent 60%);
+    color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:640px; margin:0 auto; padding:26px 18px 60px;}
+
+  /* ---- Masthead ---- */
+  .masthead{
+    text-align:center;
+    padding-bottom:16px;
+    margin-bottom:22px;
+    border-top:3px double var(--ink);
+    border-bottom:3px double var(--ink);
+    padding-top:14px;
+  }
+  .masthead .kicker{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.24em;
+    text-transform:uppercase;
+    color:var(--seal);
+    margin-bottom:6px;
+  }
+  .masthead h1{
+    font-family:'Playfair Display', serif;
+    font-weight:800;
+    font-size:32px;
+    line-height:1.1;
+    letter-spacing:0.01em;
+  }
+  .masthead .sub{
+    margin-top:6px;
+    font-size:12.5px;
+    font-style:italic;
+    color:var(--ink-soft);
+  }
+
+  /* ---- Start screen ---- */
+  .start-card{
+    background:var(--paper-dark);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:26px 22px;
+    text-align:center;
+  }
+  .seal-badge{
+    width:84px; height:84px;
+    border-radius:50%;
+    border:3px solid var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 18px;
+    font-family:'Playfair Display', serif;
+    font-weight:800;
+    font-size:15px;
+    color:var(--seal);
+    background:radial-gradient(circle, var(--paper) 60%, var(--paper-dark) 100%);
+    box-shadow:0 0 0 5px var(--paper-dark), 0 0 0 6px var(--gold);
+  }
+  .start-card p{
+    color:var(--ink-soft);
+    font-size:14.5px;
+    line-height:1.6;
+    margin-bottom:20px;
+  }
+
+  /* ---- Buttons ---- */
+  .btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:13px 20px;
+    border-radius:2px;
+    border:1.5px solid var(--seal);
+    background:transparent;
+    color:var(--seal);
+    cursor:pointer;
+    transition:background 0.2s ease, color 0.2s ease;
+  }
+  .btn:hover{background:var(--seal); color:var(--paper);}
+  .btn.primary{background:var(--seal); color:var(--paper);}
+  .btn.primary:hover{background:var(--seal-bright);}
+  .btn:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  .btn:disabled{opacity:0.4; cursor:not-allowed;}
+
+  /* ---- Progress ---- */
+  .progress-row{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:0.03em;
+  }
+  .progress-bar{
+    height:3px; background:var(--rule); border-radius:2px; margin-bottom:22px; overflow:hidden;
+  }
+  .progress-fill{height:100%; background:var(--gold); transition:width 0.3s ease;}
+
+  /* ---- Question card ---- */
+  .q-card{
+    background:var(--paper-dark);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:24px 20px;
+  }
+  .q-clause{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--seal);
+    margin-bottom:10px;
+  }
+  .q-text{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size:19px;
+    line-height:1.4;
+    margin-bottom:18px;
+  }
+  .opt{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:var(--paper);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:12px 14px;
+    margin-bottom:9px;
+    font-family:'Source Serif 4', serif;
+    font-size:14.5px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:border-color 0.15s ease, background 0.15s ease;
+  }
+  .opt:hover:not(:disabled){border-color:var(--gold);}
+  .opt:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  .opt:disabled{cursor:default;}
+  .opt .letter{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--gold);
+    margin-right:8px;
+    font-weight:600;
+  }
+  .opt.correct{background:var(--good-bg); border-color:var(--good); color:var(--good);}
+  .opt.wrong{background:var(--bad-bg); border-color:var(--bad); color:var(--bad);}
+  .opt.faded{opacity:0.55;}
+
+  .feedback{
+    margin-top:16px;
+    padding:14px 16px;
+    border-radius:2px;
+    font-size:13.5px;
+    line-height:1.6;
+    display:none;
+  }
+  .feedback.show{display:block;}
+  .feedback.correct{background:var(--good-bg); border-left:3px solid var(--good); color:var(--ink);}
+  .feedback.wrong{background:var(--bad-bg); border-left:3px solid var(--bad); color:var(--ink);}
+  .feedback .fb-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    font-weight:600;
+    margin-bottom:5px;
+    display:block;
+  }
+  .feedback.correct .fb-title{color:var(--good);}
+  .feedback.wrong .fb-title{color:var(--bad);}
+
+  .nav-row{margin-top:18px; display:flex; justify-content:flex-end;}
+
+  /* ---- Analysis screen ---- */
+  .analysis-card{
+    background:var(--paper-dark);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:24px 20px;
+  }
+  .analysis-title{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size:22px;
+    text-align:center;
+    margin-bottom:4px;
+  }
+  .analysis-score{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:20px;
+  }
+  .analysis-score b{color:var(--seal); font-size:16px;}
+  .cat-row{margin-bottom:12px;}
+  .cat-label{
+    display:flex; justify-content:space-between;
+    font-size:13px; margin-bottom:5px;
+  }
+  .cat-label .name{font-weight:600;}
+  .cat-label .frac{font-family:'IBM Plex Mono', monospace; color:var(--ink-soft); font-size:12px;}
+  .cat-bar{height:8px; background:var(--paper); border-radius:4px; overflow:hidden; border:1px solid var(--rule);}
+  .cat-bar-fill{height:100%; border-radius:4px;}
+  .cat-bar-fill.strong{background:var(--good);}
+  .cat-bar-fill.weak{background:var(--seal);}
+  .cat-bar-fill.mid{background:var(--gold);}
+
+  .weak-box{
+    margin-top:18px;
+    padding:14px 16px;
+    background:var(--bad-bg);
+    border-left:3px solid var(--seal);
+    border-radius:2px;
+    font-size:13.5px;
+    line-height:1.6;
+  }
+  .weak-box .fb-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--seal); font-weight:600; display:block; margin-bottom:6px;
+  }
+  .weak-box ul{margin:0; padding-left:18px;}
+
+  .strong-box{
+    margin-top:10px;
+    padding:14px 16px;
+    background:var(--good-bg);
+    border-left:3px solid var(--good);
+    border-radius:2px;
+    font-size:13.5px;
+    line-height:1.6;
+  }
+  .strong-box .fb-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--good); font-weight:600; display:block; margin-bottom:6px;
+  }
+
+  .analysis-nav{margin-top:20px; text-align:center;}
+
+  footer{
+    text-align:center;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:22px;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .progress-fill{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="kicker">Est. Question Bank &middot; 50 Clauses</div>
+    <h1>The Education Gazette</h1>
+    <div class="sub">Indian Education Policies, Acts &amp; Commissions — Quiz of Record</div>
+  </div>
+
+  <div id="app"></div>
+
+  <footer id="footerNote" style="display:none;">Analysis shown every 20 questions, and at the end of the paper.</footer>
+</div>
+
+<script>
+const QUESTIONS = [
+{q:"Wood's Despatch of 1854 is famously known as the:",opts:["Charter of Freedom","Magna Carta of English Education in India","Primary Education Act","Oriental Learning Reform"],c:1,exp:"Wood's Despatch laid out an articulated system of education from primary to university level and introduced grants-in-aid — earning it the title \"Magna Carta of English Education in India.\"",cat:"Colonial Era Policies"},
+{q:"Which commission was established in 1882 to evaluate the progress of Wood's Despatch?",opts:["Sadler Commission","Hunter Commission","Raleigh Commission","Hartog Committee"],c:1,exp:"The Hunter Commission (1882), chaired by W.W. Hunter, reviewed the progress of primary and secondary education since Wood's Despatch.",cat:"Colonial Era Policies"},
+{q:"The Indian Universities Act was passed in 1904 during the viceroyalty of:",opts:["Lord Ripon","Lord Curzon","Lord Dalhousie","Lord Wellesley"],c:1,exp:"Lord Curzon passed the Indian Universities Act, 1904, based on the recommendations of the Raleigh Commission.",cat:"Colonial Era Policies"},
+{q:"The Sadler Commission (1917–19) is also known as the:",opts:["Bombay University Commission","Calcutta University Commission","Delhi University Commission","Madras Education Committee"],c:1,exp:"The Sadler Commission specifically studied the problems of Calcutta University and recommended intermediate colleges — hence its other name.",cat:"Colonial Era Policies"},
+{q:"Who was the Chairman of the First Education Commission in Independent India (1948–49)?",opts:["Dr. D.S. Kothari","Dr. S. Radhakrishnan","Dr. A.L. Mudaliar","Maulana Abul Kalam Azad"],c:1,exp:"The University Education Commission (1948-49), chaired by Dr. S. Radhakrishnan, focused on higher education reforms after independence.",cat:"Post-Independence Commissions"},
+{q:"The Secondary Education Commission (1952–53) was headed by:",opts:["Dr. A. Lakshmanaswami Mudaliar","Dr. D.S. Kothari","Prof. Yashpal","Sam Pitroda"],c:0,exp:"Also called the Mudaliar Commission, it focused on restructuring secondary school education.",cat:"Post-Independence Commissions"},
+{q:"In which year was the University Grants Commission (UGC) formally established as a statutory body?",opts:["1948","1953","1956","1964"],c:2,exp:"UGC became a statutory body via an Act of Parliament in November 1956.",cat:"Regulatory & Statutory Bodies"},
+{q:"The Kothari Education Commission (1964–66) recommended which school education structure?",opts:["8+4+3","10+2+3","5+3+3+4","10+2+2"],c:1,exp:"The 10+2+3 pattern was recommended by Dr. D.S. Kothari's report \"Education & National Development.\"",cat:"Post-Independence Commissions"},
+{q:"The first National Policy on Education in India was promulgated in:",opts:["1952","1968","1986","1992"],c:1,exp:"NPE 1968 was based on the Kothari Commission's recommendations, adopted under PM Indira Gandhi.",cat:"National Policy & Programmes"},
+{q:"The National Policy on Education 1986 was introduced under the Prime Ministership of:",opts:["Indira Gandhi","Rajiv Gandhi","P.V. Narasimha Rao","Atal Bihari Vajpayee"],c:1,exp:"NPE 1986, under PM Rajiv Gandhi, emphasized democratization of education and introduced Navodaya Vidyalayas.",cat:"National Policy & Programmes"},
+{q:"Operation Blackboard was launched to improve infrastructure in primary schools following which policy?",opts:["NPE 1968","NPE 1986","NEP 2020","POA 1992"],c:1,exp:"Operation Blackboard (1987) followed NPE 1986, aiming to provide minimum essential facilities in primary schools.",cat:"National Policy & Programmes"},
+{q:"The 1993 Yashpal Committee Report on school education was titled:",opts:["Education for All","Learning Without Burden","Quality Schooling","Modern Education"],c:1,exp:"Prof. Yashpal's report aimed at reducing curriculum load and stress on school children.",cat:"Post-Independence Commissions"},
+{q:"Education was shifted from the State List to the Concurrent List by which Constitutional Amendment?",opts:["24th Amendment, 1971","42nd Amendment, 1976","44th Amendment, 1978","86th Amendment, 2002"],c:1,exp:"The 42nd Amendment (1976) moved education to the Concurrent List under Entry 25.",cat:"Constitutional & Legal Provisions"},
+{q:"The Right of Children to Free and Compulsory Education (RTE) Act was passed in:",opts:["2002","2005","2009","2010"],c:2,exp:"The RTE Act was enacted in August 2009 and came into force on 1 April 2010.",cat:"RTE Act 2009"},
+{q:"Which Constitutional Amendment inserted Article 21A making free & compulsory education a Fundamental Right?",opts:["42nd Amendment","86th Amendment","91st Amendment","103rd Amendment"],c:1,exp:"The 86th Constitutional Amendment Act, 2002, inserted Article 21A for children aged 6 to 14.",cat:"Constitutional & Legal Provisions"},
+{q:"The National Knowledge Commission (NKC 2005) was chaired by:",opts:["Dr. K. Kasturirangan","Sam Pitroda","Dr. Anil Kakodkar","Prof. Yashpal"],c:1,exp:"The NKC was constituted in 2005, chaired by Sam Pitroda, to help transform India into a knowledge economy.",cat:"Post-Independence Commissions"},
+{q:"The Committee on Renovation and Rejuvenation of Higher Education (2009) was headed by:",opts:["Prof. Yashpal","Dr. D.S. Kothari","Dr. H.R. Nagendra","Dr. C.N.R. Rao"],c:0,exp:"The Yashpal Committee (2009) recommended creating a single overarching regulatory body (NHERA) for higher education.",cat:"Post-Independence Commissions"},
+{q:"The drafting committee of the National Education Policy 2020 was chaired by:",opts:["Dr. K. Kasturirangan","Sam Pitroda","Dr. Vijay Bhatkar","Prof. M.M. Joshi"],c:0,exp:"Renowned scientist Dr. K. Kasturirangan led the NEP 2020 drafting committee.",cat:"NEP 2020"},
+{q:"NEP 2020 replaces the previous school education structure with which new pattern?",opts:["10+2+3","5+3+3+4","3+5+3+4","5+4+3+3"],c:1,exp:"The 5+3+3+4 pattern covers the Foundational, Preparatory, Middle, and Secondary stages.",cat:"NEP 2020"},
+{q:"In NEP 2020, PARAKH stands for a national assessment center. What does 'P' stand for?",opts:["Primary","Performance","Pedagogy","Public"],c:1,exp:"PARAKH stands for Performance Assessment, Review, and Analysis of Knowledge for Holistic Development.",cat:"NEP 2020"},
+{q:"Macaulay's Minute on Indian Education was presented in the year:",opts:["1833","1835","1854","1882"],c:1,exp:"Macaulay's Minute of 1835 advocated English as the medium of instruction in India.",cat:"Colonial Era Policies"},
+{q:"The Wardha Scheme of Basic Education (Nai Talim) was propounded by:",opts:["Swami Vivekananda","Mahatma Gandhi","Rabindranath Tagore","Sri Aurobindo"],c:1,exp:"Mahatma Gandhi introduced Nai Talim at the Wardha Educational Conference in 1937.",cat:"Colonial Era Policies"},
+{q:"The Sergeant Report on education was published in:",opts:["1940","1944","1947","1950"],c:1,exp:"The Sergeant Scheme (1944) aimed at achieving universal literacy in India within 40 years.",cat:"Colonial Era Policies"},
+{q:"Which university was established following the recommendations of Wood's Despatch?",opts:["University of Calcutta","Banaras Hindu University","Aligarh Muslim University","Delhi University"],c:0,exp:"The Universities of Calcutta, Bombay, and Madras were established in 1857 following Wood's Despatch.",cat:"Colonial Era Policies"},
+{q:"The Central Advisory Board of Education (CABE) was first established in:",opts:["1920","1935","1948","1952"],c:0,exp:"CABE was set up in 1920, dissolved in 1923, and revived in 1935.",cat:"Colonial Era Policies"},
+{q:"The Hartog Committee (1929) focused on reducing problems of:",opts:["Higher technical education","Wastage and stagnation in primary education","Distance learning","Adult literacy"],c:1,exp:"The Hartog Committee highlighted mass illiteracy and \"wastage and stagnation\" at the primary level.",cat:"Colonial Era Policies"},
+{q:"The Raleigh Commission (1902) led to the reform of which sector?",opts:["Primary education","University education","Secondary education","Technical education"],c:1,exp:"Sir Thomas Raleigh headed the 1902 commission specifically on university education.",cat:"Colonial Era Policies"},
+{q:"Which Act mandated 25% reservation for weaker sections in private unaided schools?",opts:["UGC Act 1956","RTE Act 2009","Persons with Disabilities Act","NEP 2020"],c:1,exp:"Section 12(1)(c) of the RTE Act mandates 25% free seats for disadvantaged children in private unaided schools.",cat:"RTE Act 2009"},
+{q:"The National Council of Educational Research and Training (NCERT) was set up in:",opts:["1956","1961","1968","1975"],c:1,exp:"NCERT was established in September 1961 by the Ministry of Education.",cat:"Regulatory & Statutory Bodies"},
+{q:"The National Council for Teacher Education (NCTE) got statutory status in:",opts:["1973","1986","1993","2000"],c:2,exp:"NCTE became a statutory body under the NCTE Act, 1993.",cat:"Regulatory & Statutory Bodies"},
+{q:"Which agency regulates technical education in India under an Act of 1987?",opts:["UGC","AICTE","NCERT","ICAR"],c:1,exp:"AICTE was given statutory status by an Act of Parliament in 1987.",cat:"Regulatory & Statutory Bodies"},
+{q:"The National Assessment and Accreditation Council (NAAC) was established by UGC in:",opts:["1986","1994","2000","2005"],c:1,exp:"NAAC was set up in 1994, headquartered in Bengaluru.",cat:"Regulatory & Statutory Bodies"},
+{q:"The National Policy on Education 1986 suggested setting up DIETs. What does DIET stand for?",opts:["District Institute of Education and Training","Department of Indian Educational Training","District Initiative for Elementary Teachers","Direct Institute for Teacher Examination"],c:0,exp:"DIETs were established under NPE 1986 to train primary school teachers.",cat:"National Policy & Programmes"},
+{q:"In NEP 2020, what is the Gross Enrolment Ratio (GER) target for Higher Education by 2035?",opts:["30%","50%","75%","100%"],c:1,exp:"NEP 2020 aims to raise GER in higher education to 50% by 2035.",cat:"NEP 2020"},
+{q:"What is the GER target for School Education under NEP 2020 by 2030?",opts:["50%","75%","100%","90%"],c:2,exp:"NEP 2020 targets 100% Gross Enrolment Ratio from preschool to secondary level by 2030.",cat:"NEP 2020"},
+{q:"Which commission proposed the 'Three-Language Formula' in education?",opts:["Radhakrishnan Commission","Kothari Commission","Sadler Commission","Mudaliar Commission"],c:1,exp:"The Kothari Commission (1964-66) propounded the Three-Language Formula.",cat:"Post-Independence Commissions"},
+{q:"The Open University system in India was inaugurated with the setting up of:",opts:["IGNOU, New Delhi","Dr. B.R. Ambedkar Open University, Hyderabad","YCMOU, Nashik","NSOU, Kolkata"],c:1,exp:"BRAOU (Hyderabad) was established in 1982 as India's first open university, predating IGNOU.",cat:"Regulatory & Statutory Bodies"},
+{q:"Indira Gandhi National Open University (IGNOU) was established by an Act of Parliament in:",opts:["1980","1985","1990","1992"],c:1,exp:"IGNOU was established in 1985 to promote distance education nationwide.",cat:"Regulatory & Statutory Bodies"},
+{q:"The 'Navodaya Vidyalaya' scheme was launched to provide quality education to:",opts:["Urban elite children","Talented rural children","Dropouts only","Adult learners"],c:1,exp:"Jawahar Navodaya Vidyalayas were initiated under NPE 1986 for talented rural students.",cat:"National Policy & Programmes"},
+{q:"Which section of the RTE Act prohibits corporal punishment and mental harassment?",opts:["Section 12","Section 17","Section 21","Section 28"],c:1,exp:"Section 17 of the RTE Act 2009 bans physical punishment and mental harassment of children.",cat:"RTE Act 2009"},
+{q:"The Downward Filtration Theory in Indian Education was advocated by:",opts:["Lord Macaulay","Charles Wood","Lord Curzon","W.W. Hunter"],c:0,exp:"Macaulay believed educating a top elite would eventually \"filter down\" knowledge to the masses.",cat:"Colonial Era Policies"},
+{q:"The Charter Act of 1813 allocated how much money annually for Indian education?",opts:["Rs 10,000","Rs 1 Lakh","Rs 5 Lakhs","Rs 10 Lakhs"],c:1,exp:"Clause 43 of the Charter Act 1813 set aside Rs 1 lakh annually for literature and science.",cat:"Colonial Era Policies"},
+{q:"The Bethune School established in Calcutta in 1849 was a pioneer in:",opts:["Technical Education","Female Education","Medical Education","Legal Education"],c:1,exp:"J.E.D. Bethune established the Bethune School in 1849 as a pioneer of women's education.",cat:"Colonial Era Policies"},
+{q:"The University of Delhi was established in which year?",opts:["1916","1922","1935","1948"],c:1,exp:"University of Delhi was incorporated in 1922 by an Act of the Central Legislative Assembly.",cat:"Colonial Era Policies"},
+{q:"Which body was constituted in 1992 to review the NPE 1986?",opts:["Janardhana Reddy Committee","Yashpal Committee","Ramamurti Committee","Kasturirangan Committee"],c:0,exp:"The N. Janardhana Reddy Committee formulated the Programme of Action (POA) 1992.",cat:"Post-Independence Commissions"},
+{q:"The Acharya Ramamurti Committee (1990) was appointed to review:",opts:["NPE 1968","NPE 1986","Secondary Education","University Grants Commission"],c:1,exp:"The Ramamurti Committee's report, reviewing NPE 1986, was titled \"Towards an Enlightened and Humane Society.\"",cat:"Post-Independence Commissions"},
+{q:"In NEP 2020, what is ABC?",opts:["Academic Bank of Credits","Annual Bureau of Curriculum","Association of Basic Colleges","Advisory Board of Certificates"],c:0,exp:"ABC digitally stores academic credits earned by students to facilitate mobility between institutions.",cat:"NEP 2020"},
+{q:"Under NEP 2020, vocational education will start from which Grade with internships?",opts:["Grade 4","Grade 6","Grade 9","Grade 11"],c:1,exp:"NEP 2020 integrates vocational exposure and internships starting from Grade 6.",cat:"NEP 2020"},
+{q:"Which section of the RTE Act mandates School Management Committees (SMCs)?",opts:["Section 12","Section 21","Section 25","Section 28"],c:1,exp:"Section 21 mandates SMCs in schools, with 75% parent representation.",cat:"RTE Act 2009"},
+{q:"Which commission first recommended setting up rural universities in India?",opts:["Kothari Commission","Radhakrishnan Commission","Mudaliar Commission","Sadler Commission"],c:1,exp:"The University Education Commission (1948-49), i.e. the Radhakrishnan Commission, recommended rural universities modeled on Santiniketan.",cat:"Post-Independence Commissions"}
+];
+
+const BATCH_SIZE = 20;
+let current = 0;
+let score = 0;
+let answered = false;
+let catStats = {}; // {cat: {correct, total}}
+let history = []; // per-question correctness for full-run analysis
+
+const app = document.getElementById('app');
+const footerNote = document.getElementById('footerNote');
+
+function initCat(cat){
+  if(!catStats[cat]) catStats[cat] = {correct:0, total:0};
+}
+
+function renderStart(){
+  footerNote.style.display='none';
+  app.innerHTML = `
+    <div class="start-card">
+      <div class="seal-badge">50<br>Q</div>
+      <p>Fifty clauses drawn from Indian education policy — from Wood's Despatch to NEP 2020. Answer each; wrong picks come with the correct answer and why. Every 20 questions, the Gazette publishes a performance analysis by topic.</p>
+      <button class="btn primary" id="startBtn">Begin the Paper</button>
+    </div>
+  `;
+  document.getElementById('startBtn').addEventListener('click', ()=>{ renderQuestion(); });
+}
+
+function renderQuestion(){
+  footerNote.style.display='block';
+  answered = false;
+  const total = QUESTIONS.length;
+  const idx = current;
+  const item = QUESTIONS[idx];
+  const pct = Math.round((idx/total)*100);
+
+  app.innerHTML = `
+    <div class="progress-row">
+      <span>Clause ${idx+1} of ${total}</span>
+      <span>Score: ${score}/${idx}</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="q-card">
+      <div class="q-clause">§ ${idx+1} &middot; ${item.cat}</div>
+      <div class="q-text">${item.q}</div>
+      <div id="optsWrap"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="nav-row"><button class="btn primary" id="nextBtn" style="display:none;">Next Clause →</button></div>
+    </div>
+  `;
+
+  const optsWrap = document.getElementById('optsWrap');
+  const letters = ['A','B','C','D'];
+  item.opts.forEach((opt, i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = `<span class="letter">${letters[i]}</span>${opt}`;
+    b.addEventListener('click', ()=>selectAnswer(i));
+    optsWrap.appendChild(b);
+  });
+}
+
+function selectAnswer(i){
+  if(answered) return;
+  answered = true;
+  const item = QUESTIONS[current];
+  initCat(item.cat);
+  catStats[item.cat].total++;
+
+  const optButtons = document.querySelectorAll('.opt');
+  optButtons.forEach((b,idx)=>{
+    b.disabled = true;
+    if(idx === item.c){ b.classList.add('correct'); }
+    else if(idx === i && i !== item.c){ b.classList.add('wrong'); }
+    else { b.classList.add('faded'); }
+  });
+
+  const fb = document.getElementById('feedback');
+  const isCorrect = (i === item.c);
+  if(isCorrect){
+    score++;
+    catStats[item.cat].correct++;
+    fb.className = 'feedback show correct';
+    fb.innerHTML = `<span class="fb-title">Correct</span>${item.exp}`;
+  } else {
+    fb.className = 'feedback show wrong';
+    fb.innerHTML = `<span class="fb-title">Not quite — correct answer: ${item.opts[item.c]}</span>${item.exp}`;
+  }
+  history.push(isCorrect);
+
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  document.getElementById('nextBtn').addEventListener('click', advance);
+}
+
+function advance(){
+  current++;
+  const total = QUESTIONS.length;
+  const isCheckpoint = (current % BATCH_SIZE === 0) || (current === total);
+  if(isCheckpoint){
+    renderAnalysis(current === total);
+  } else {
+    renderQuestion();
+  }
+}
+
+function renderAnalysis(isFinal){
+  footerNote.style.display='block';
+  const pct = Math.round((score/current)*100);
+
+  let rows = '';
+  const cats = Object.keys(catStats).sort();
+  const catPerf = cats.map(cat=>{
+    const s = catStats[cat];
+    const p = s.total ? Math.round((s.correct/s.total)*100) : 0;
+    return {cat, ...s, p};
+  });
+  catPerf.sort((a,b)=> a.p - b.p);
+
+  catPerf.forEach(c=>{
+    let cls = 'mid';
+    if(c.p >= 75) cls = 'strong';
+    else if(c.p < 50) cls = 'weak';
+    rows += `
+      <div class="cat-row">
+        <div class="cat-label"><span class="name">${c.cat}</span><span class="frac">${c.correct}/${c.total} · ${c.p}%</span></div>
+        <div class="cat-bar"><div class="cat-bar-fill ${cls}" style="width:${c.p}%"></div></div>
+      </div>
+    `;
+  });
+
+  const weakCats = catPerf.filter(c=>c.p < 50).map(c=>c.cat);
+  const strongCats = catPerf.filter(c=>c.p >= 75).map(c=>c.cat);
+
+  let weakHtml = '';
+  if(weakCats.length){
+    weakHtml = `
+      <div class="weak-box">
+        <span class="fb-title">Weak Areas</span>
+        <ul>${weakCats.map(c=>`<li>${c}</li>`).join('')}</ul>
+        Revisit these topics before continuing — they're pulling your score down most.
+      </div>
+    `;
+  } else {
+    weakHtml = `
+      <div class="weak-box" style="background:var(--good-bg); border-left-color:var(--good);">
+        <span class="fb-title" style="color:var(--good);">No Weak Areas Yet</span>
+        Solid spread so far — nothing under 50% in this stretch.
+      </div>
+    `;
+  }
+
+  let strongHtml = '';
+  if(strongCats.length){
+    strongHtml = `
+      <div class="strong-box">
+        <span class="fb-title">Strong Areas</span>
+        You're scoring well on: ${strongCats.join(', ')}.
+      </div>
+    `;
+  }
+
+  app.innerHTML = `
+    <div class="analysis-card">
+      <div class="analysis-title">${isFinal ? 'Final Performance Analysis' : `Performance Analysis — After Clause ${current}`}</div>
+      <div class="analysis-score">Overall: <b>${score}/${current}</b> (${pct}%)</div>
+      ${rows}
+      ${weakHtml}
+      ${strongHtml}
+      <div class="analysis-nav">
+        ${isFinal
+          ? `<button class="btn primary" id="restartBtn">Restart the Paper</button>`
+          : `<button class="btn primary" id="continueBtn">Continue to Clause ${current+1} →</button>`
+        }
+      </div>
+    </div>
+  `;
+
+  if(isFinal){
+    document.getElementById('restartBtn').addEventListener('click', ()=>{
+      current = 0; score = 0; catStats = {}; history = [];
+      renderStart();
+    });
+  } else {
+    document.getElementById('continueBtn').addEventListener('click', renderQuestion);
+  }
+}
+
+renderStart();
+</script>
+</body>
+</html>

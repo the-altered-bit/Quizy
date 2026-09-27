@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LA FORCA — University Assistant FLT 1 (2026)</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#101012; --surface:#1B1B1F; --surface2:#242428; --surface3:#2E2E33;
+  --border:#333338; --text:#F0F0F1; --text-dim:#A6A6AD; --text-faint:#6B6B72;
+  --gold:#D9B24C; --gold-dim:rgba(217,178,76,0.16); --gold-strong:#F0C75E;
+  --green:#4CB963; --green-dim:rgba(76,185,99,0.15);
+  --red:#E5534B; --red-dim:rgba(229,83,75,0.15);
+  --blue:#5B8DEF; --blue-dim:rgba(91,141,239,0.15);
+  --amber:#E8A33D;
+  --radius:14px; --radius-sm:8px;
+  --sh1:0 1px 3px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.5);
+  --sh2:0 4px 14px rgba(0,0,0,.5);
+  --sh3:0 10px 30px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Roboto',system-ui,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.mono{font-family:'Roboto Mono',monospace;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+::selection{background:var(--gold-dim);color:var(--gold-strong);}
+#app{max-width:1100px;margin:0 auto;padding:18px 16px 60px;}
+
+/* ---- top bar ---- */
+.appbar{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-radius:var(--radius);padding:14px 20px;box-shadow:var(--sh1);margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.appbar .brand{display:flex;flex-direction:column;}
+.appbar .brand b{font-size:15px;letter-spacing:.4px;color:var(--gold-strong);}
+.appbar .brand span{font-size:11px;color:var(--text-faint);}
+.chip{background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:6px 14px;font-size:12.5px;color:var(--text-dim);}
+
+/* ---- cover screen ---- */
+.cover{background:var(--surface);border-radius:var(--radius);padding:36px 30px;box-shadow:var(--sh2);}
+.cover h1{font-size:26px;margin:0 0 6px;color:var(--gold-strong);}
+.cover h2{font-size:15px;margin:0 0 22px;color:var(--text-dim);font-weight:400;}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:26px;}
+.meta-box{background:var(--surface2);border-radius:var(--radius-sm);padding:14px 16px;box-shadow:var(--sh1);}
+.meta-box .v{font-size:20px;font-weight:700;color:var(--gold);}
+.meta-box .l{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+.rules{background:var(--surface2);border-radius:var(--radius-sm);padding:18px 20px;margin-bottom:26px;font-size:13.5px;color:var(--text-dim);line-height:1.7;}
+.rules b{color:var(--text);}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:999px;font-weight:700;font-size:14.5px;box-shadow:var(--sh1);transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;}
+.btn:active{transform:scale(.97);}
+.btn-gold{background:linear-gradient(135deg,var(--gold-strong),#c99b32);color:#1a1300;}
+.btn-gold:hover{filter:brightness(1.06);box-shadow:var(--sh2);}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--text-faint);}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(229,83,75,.4);}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;}
+
+/* ---- exam layout ---- */
+.exam-wrap{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start;}
+@media (max-width:860px){.exam-wrap{grid-template-columns:1fr;}}
+
+.qpanel{background:var(--surface);border-radius:var(--radius);padding:24px 26px;box-shadow:var(--sh2);}
+.qpanel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.qnum{font-size:13px;color:var(--text-faint);}
+.qnum b{color:var(--gold);}
+.catpill{display:inline-block;background:var(--blue-dim);color:var(--blue);font-size:11px;font-weight:700;padding:4px 11px;border-radius:999px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;}
+.qtext{font-size:17.5px;line-height:1.6;margin:0 0 20px;white-space:pre-line;}
+.opt{display:flex;align-items:flex-start;gap:13px;padding:13px 16px;border-radius:var(--radius-sm);border:1.5px solid var(--surface3);margin-bottom:9px;background:var(--surface2);transition:all .12s ease;}
+.opt:hover{border-color:var(--text-faint);}
+.opt.selected{border-color:var(--gold);background:var(--gold-dim);}
+.opt-letter{width:24px;height:24px;border-radius:50%;border:2px solid var(--surface3);flex:none;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:var(--text-faint);}
+.opt.selected .opt-letter{border-color:var(--gold);background:var(--gold);color:#1a1300;}
+.opt-text{font-size:14.5px;line-height:1.5;padding-top:2px;}
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:22px;gap:10px;flex-wrap:wrap;}
+.qnav .grp{display:flex;gap:10px;flex-wrap:wrap;}
+
+/* ---- sidebar ---- */
+.sidebar{background:var(--surface);border-radius:var(--radius);padding:18px 18px 20px;box-shadow:var(--sh2);position:sticky;top:16px;}
+.timer-box{background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;margin-bottom:16px;border:1px solid var(--border);}
+.timer-box.low{border-color:var(--red);background:var(--red-dim);}
+.timer-box .tv{font-size:28px;font-weight:700;color:var(--gold);letter-spacing:1px;}
+.timer-box.low .tv{color:var(--red);}
+.timer-box .tl{font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:10.5px;color:var(--text-faint);margin-bottom:12px;}
+.legend span{display:inline-flex;align-items:center;gap:5px;}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block;}
+.palette{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;max-height:340px;overflow-y:auto;padding-right:2px;}
+.pnode{aspect-ratio:1;border-radius:6px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;background:var(--surface2);color:var(--text-faint);border:1px solid var(--surface3);}
+.pnode.current{outline:2px solid var(--gold);outline-offset:1px;}
+.pnode.answered{background:var(--green-dim);color:var(--green);border-color:var(--green);}
+.pnode.skipped{background:rgba(232,163,61,.14);color:var(--amber);border-color:var(--amber);}
+.sidebar .submit-btn{width:100%;margin-top:16px;justify-content:center;}
+
+/* ---- results ---- */
+.res-hero{display:flex;gap:24px;align-items:center;flex-wrap:wrap;background:var(--surface);border-radius:var(--radius);padding:28px;box-shadow:var(--sh2);}
+.ring{width:118px;height:118px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;position:relative;background:conic-gradient(var(--gold) calc(var(--pct)*1%), var(--surface3) 0);}
+.ring::before{content:'';position:absolute;inset:9px;border-radius:50%;background:var(--surface);}
+.ring b{position:relative;font-size:22px;font-family:'Roboto Mono';}
+.res-hero h2{margin:0 0 4px;font-size:22px;}
+.res-hero p{margin:0;color:var(--text-dim);font-size:14px;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:20px;}
+.stat{background:var(--surface2);border-radius:var(--radius-sm);padding:14px;box-shadow:var(--sh1);}
+.stat .v{font-size:21px;font-weight:700;font-family:'Roboto Mono';}
+.stat .l{font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.4px;margin-top:3px;}
+.stat.good .v{color:var(--green);} .stat.bad .v{color:var(--red);} .stat.gold .v{color:var(--gold);}
+
+.section-title{font-size:15px;font-weight:700;margin:26px 0 12px;display:flex;align-items:center;gap:8px;color:var(--text);}
+.cat-row{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:8px;box-shadow:var(--sh1);}
+.cat-row .cname{flex:0 0 150px;font-size:13px;font-weight:600;}
+.cat-bar{flex:1;height:9px;background:var(--surface3);border-radius:5px;overflow:hidden;}
+.cat-bar>div{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));}
+.cat-bar.weak>div{background:linear-gradient(90deg,var(--amber),var(--red));}
+.cat-score{flex:0 0 74px;text-align:right;font-family:'Roboto Mono';font-size:12.5px;color:var(--text-dim);}
+.weak-flag{color:var(--red);font-size:11px;margin-left:6px;}
+
+.review-item{background:var(--surface);border-radius:var(--radius-sm);margin-bottom:8px;box-shadow:var(--sh1);overflow:hidden;}
+.review-head{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;}
+.rstatus{width:24px;height:24px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.rstatus.correct{background:var(--green-dim);color:var(--green);}
+.rstatus.wrong{background:var(--red-dim);color:var(--red);}
+.rstatus.skipped{background:rgba(232,163,61,.14);color:var(--amber);}
+.rq{flex:1;font-size:13.5px;}
+.rcat{font-size:10.5px;background:var(--surface2);color:var(--text-faint);padding:3px 9px;border-radius:999px;flex:none;}
+.rbody{max-height:0;overflow:hidden;transition:max-height .2s ease;}
+.review-item.open .rbody{max-height:500px;}
+.rbody-in{padding:0 16px 16px;}
+.ropt{padding:8px 12px;border-radius:6px;border:1px solid var(--surface3);font-size:12.5px;margin-bottom:5px;display:flex;justify-content:space-between;gap:8px;}
+.ropt.iscorrect{border-color:var(--green);background:var(--green-dim);}
+.ropt.iswrong{border-color:var(--red);background:var(--red-dim);}
+.rexp{margin-top:8px;padding:10px 12px;background:var(--surface2);border-radius:6px;font-size:12.5px;color:var(--text-dim);line-height:1.55;}
+
+.filterbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0;}
+.fchip{background:var(--surface2);border:1px solid var(--border);padding:6px 13px;border-radius:999px;font-size:12px;color:var(--text-dim);}
+.fchip.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-strong);}
+
+.hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ======================= QUESTION BANK ======================= */
+/* [ question, [A,B,C,D], correctIndex(0-3), category, explanation ] */
+const CATS = {POL:'Polity',ECO:'Economy',HIS:'History',GEO:'Geography',SCI:'Science',
+  KER:'Kerala Culture & History',CA:'Current Affairs',EDU:'Education Policy',CS:'Computer Awareness',
+  QA:'Quantitative Aptitude',REA:'Reasoning',ENG:'English',MAL:'Malayalam'};
+
+const RAW = [
+["Consider the following statements regarding the Special Officer for Linguistic Minorities:\nI. Appointed by the President and reports to the President on safeguards for linguistic minorities.\nII. The Constitution specifies the Officer's tenure and service conditions.\nIII. Article 350-B was inserted by the Seventh Constitutional Amendment Act, 1956.\nSelect the correct answer:",["I and III only","I and II only","II and III only","I, II and III"],0,"POL","I & III correct: Art 350-B (added by 7th Amendment, 1956) creates the office; the Constitution does NOT specify its tenure/service conditions (II is false)."],
+["Under Article 358, Fundamental Rights under Article 19 are automatically suspended during a National Emergency declared on the ground of:",["Armed rebellion only","War or external aggression","War, external aggression, or armed rebellion","Internal disturbance only"],1,"POL","Post 44th Amendment (1978), Art 358's automatic suspension of Art 19 applies only to war/external aggression, not armed rebellion (internal emergency)."],
+["The word Secularism is incorporated in the Preamble through which Constitutional Amendment?",["42nd","44th","46th","43rd"],0,"POL","The 42nd Amendment Act, 1976 (the 'Mini-Constitution') added Socialist, Secular and Integrity to the Preamble."],
+["Consider the following statements regarding the duration of Rajya Sabha and Lok Sabha:\nI. Rajya Sabha is permanent, one-third members retire every second year.\nII. During a National Emergency, Lok Sabha's term can be extended by Parliament for one year at a time, but not beyond six months after the Emergency ceases.\nSelect the correct answer:",["I only","II only","Both I and II","None of them"],2,"POL","Both statements are correct per Articles 83(1) and 83(2)."],
+["Which of the following is a compulsory provision of the 73rd Constitutional Amendment Act, 1992?",["Reservation of seats for Backward Classes","Devolution of 29 functions to Panchayats","Establishment of a State Election Commission","Granting financial powers to Panchayats"],2,"POL","A State Election Commission to conduct panchayat elections is a compulsory provision; the others are discretionary/left to states."],
+["Consider the following statements regarding the GST Council:\nI. Constitutional body under Article 279-A, inserted by the 101st Amendment, 2016.\nII. Vice-Chairperson is appointed by the President from among State Finance Ministers.\nSelect the INCORRECT answer:",["I only","II only","Both I and II","Neither I nor II"],1,"ECO","I is correct. II is incorrect — GST Council members themselves elect the Vice-Chairperson; the President does not appoint them."],
+["Which Five-Year Plan had the theme \"Towards Faster and More Inclusive Growth\" and targeted a 9% GDP growth rate?",["Ninth Five-Year Plan","Tenth Five-Year Plan","Eleventh Five-Year Plan","Twelfth Five-Year Plan"],2,"ECO","The Eleventh Five-Year Plan (2007–2012) carried this theme and 9% growth target (later revised to 8.1%)."],
+["Which type of unemployment is characterized by workers being apparently employed, but removing some does not reduce total output since their marginal productivity is zero?",["Disguised unemployment","Underemployment","Seasonal unemployment","Structural unemployment"],0,"ECO","Disguised unemployment — classic example: excess workers on a family farm producing zero marginal output."],
+["Calculate NNP at factor cost: NNP at Market price = Rs. 5,000 crores, Indirect taxes = Rs. 400 crores, Subsidies = Rs. 200 crores.",["Rs. 5,600 crores","Rs. 5,200 crores","Rs. 4,800 crores","Rs. 4,400 crores"],2,"ECO","NNP(FC) = NNP(MP) − Indirect Taxes + Subsidies = 5000 − 400 + 200 = 4,800 crores."],
+["Which of the following is a restriction applicable to capital account transactions in India?",["All capital account transactions are freely permitted","External Commercial Borrowings (ECBs) are subject to prescribed limits","FPIs can invest without any prescribed limits in govt securities","FDI is permitted in all sectors without restrictions"],1,"ECO","ECBs are strictly regulated under RBI guidelines (borrowing limits, maturity, end-use restrictions)."],
+["Operation Brahma (2025), launched by India, was primarily associated with humanitarian assistance following which event?",["Cyclone Yagi","Major earthquake in Myanmar and Thailand","Tsunami in Indonesia and Sri Lanka","Floods in Bangladesh and Nepal"],1,"CA","Launched in March 2025 as HADR assistance after the 7.7-magnitude Myanmar earthquake."],
+["Assertion (A): The 2025 Israel-Iran confrontation heightened tensions in West Asia with strikes on nuclear-related targets.\nReason (R): Israel launched Operation Rising Lion on Iranian nuclear facilities; Iran responded with Operation True Promise 3, hitting Haifa and Rehovot.\nSelect the correct code:",["Both A and R true, R correctly explains A","Both A and R true, R does not explain A","A true, R false","A false, R true"],0,"CA","Both statements are factually accurate and R directly explains the operations that caused the tension described in A."],
+["Abhinav Bharat, founded in 1904, was inspired by the revolutionary ideas of ______?",["Giuseppe Mazzini and Young Italy","Karl Marx and Communist International","Lenin and Bolshevik Party","Garibaldi and Red Shirts"],0,"HIS","Founded by V.D. Savarkar, modeled on Mazzini's 'Young Italy' underground movement."],
+["The Swadeshi Movement was formally proclaimed on August 7, 1905, with the Boycott Resolution passed at which place?",["Victoria Memorial, Calcutta","Calcutta Town Hall","Fort William, Calcutta","University of Calcutta"],1,"HIS","The Boycott Resolution and formal Swadeshi proclamation happened at Calcutta Town Hall."],
+["Consider statements on Albuquerque and the Portuguese in India:\nI. Negotiated a treaty with the Regent Queen of Quilon and set up a factory there.\nII. The 1513 treaty between Portuguese and Zamorin was signed at Ponnani.\nWhich is/are correct?",["I only","II only","Both I and II","Neither I nor II"],0,"HIS","I is correct (Quilon, 1503). II is wrong — the 1513 treaty was at Calicut; Ponnani treaty came later, in 1540."],
+["Identify the statement(s) that is/are NOT correct:\nI. Igneous rocks are volcanic, hence no fossils.\nII. Granite and Basalt are igneous rocks.\nIII. Igneous rocks are primary rocks.\nIV. Igneous rocks have a layered structure.",["II only","Both I and IV","IV only","None of the above"],2,"GEO","I, II, III are correct. IV is false — layering is a sedimentary rock feature, not igneous."],
+["Which statement correctly describes the Earth's heat budget?",["Heat received from the Sun ≈ heat lost via terrestrial radiation","Earth absorbs all solar radiation, reflecting none","Terrestrial radiation is mainly short-wave, direct from the Sun","Albedo is heat absorbed by Earth's surface"],0,"GEO","The heat budget balances incoming solar radiation with outgoing terrestrial radiation, keeping Earth's average temperature stable."],
+["Consider statements on composition of Earth's atmosphere:\nI. Nitrogen ≈78% by volume, key in organic compounds.\nII. Homosphere extends ~80–100 km, gases uniformly mixed.\nIII. Heterosphere is the lower layer, up to ~100 km.\nWhich is/are correct?",["I and II","II and III","I and III","All of the above"],0,"GEO","I & II correct. III is wrong — the heterosphere is the UPPER layer above ~100 km, with stratified (not lower, not uniformly mixed) gases."],
+["Which feature is NOT typically associated with karst topography?",["Stalactites","U-shaped valleys","Sinkholes / underground rivers",""],1,"GEO","U-shaped valleys are carved by glaciers, not karst (limestone dissolution) processes."],
+["The Pampadum Shola National Park is located in which district?",["Wayanad","Pathanamthitta","Kollam","Idukki"],3,"KER","Located in Idukki district, near Vattavada, ~35 km from Munnar — Kerala's smallest national park."],
+["Consider statements on the National Commission for Women (NCW):\nI. Statutory body under the NCW Act, 1990.\nII. Consists of a Chairperson, five Members and a Member-Secretary, with at least one SC and one ST Member.\nWhich is/are correct?",["I only","II only","Both I and II","Neither I nor II"],2,"POL","Both statements correctly describe the NCW's statutory basis and composition."],
+["Under the POSH Act, 2013, an Internal Complaints Committee (ICC) is mandatory in an establishment having:",["5 or more employees","10 or more employees","15 or more employees","20 or more employees"],1,"POL","Section 4(1) of the POSH Act mandates an Internal Committee for establishments with 10 or more employees."],
+["Consider statements on the Kerala Agrarian Relations Bill, 1959:\nI. Introduced in 1959 by Revenue Minister K.R. Gouri Amma under the EMS government.\nII. Aimed to abolish intermediary landlordism, fix tenure, regulate rent and impose land ceilings.\nWhich is/are INCORRECT?",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],3,"KER","Both statements are correct — the Bill (introduced 1957, passed 1959) did exactly this under K.R. Gouri Amma."],
+["The Doctrine of Pleasure, under which civil servants hold office at the pleasure of the President/Governor, is primarily provided under:",["Article 309","Article 310","Article 311","Article 312"],1,"POL","Article 310 lays down the 'pleasure' doctrine; Article 311 provides safeguards against arbitrary dismissal."],
+["Administrative arbitrariness primarily refers to:",["Exercise of power strictly per established laws","Exercise of discretionary power in an unreasonable, biased or whimsical manner","Exercise of judicial power by administrative authorities","Delegation of legislative powers to administrative agencies"],1,"POL","Arbitrariness means using discretion without objective standards — biased or whimsical action violating the rule of law."],
+["Which condition is characterized by softening of bones in adults, causing bone pain and muscle weakness?",["Osteoporosis","Rickets","Osteomalacia","Hypocalcemia"],2,"SCI","Osteomalacia — impaired bone mineralization in adults, often from Vitamin D deficiency."],
+["Which type of neuron carries nerve impulses from sensory receptors towards the CNS?",["Motor neuron","Interneuron","Sensory neuron","Autonomic neuron"],2,"SCI","Sensory (afferent) neurons carry impulses from receptors to the brain/spinal cord."],
+["Consider statements on the hypothalamus and endocrine regulation:\nI. Hypothalamus produces releasing/inhibiting hormones regulating anterior pituitary secretion.\nII. Posterior pituitary is regulated mainly via a portal circulatory system with the hypothalamus.\nWhich is/are correct?",["I only","II only","Both I and II","Neither I nor II"],0,"SCI","I is correct (hypophyseal portal system → anterior pituitary). II is wrong — the posterior pituitary is regulated by direct neural (axonal) connections, not a portal system."],
+["Consider statements on speed of light in media:\nI. ~3×10^8 m/s in vacuum, ~2.25×10^8 in water, ~2×10^8 in glass.\nII. Speed in diamond ≈1.25×10^8 m/s, slower than in glass.\nWhich is/are INCORRECT?",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],3,"SCI","Both statements are numerically correct — speed decreases as refractive index increases (v = c/n)."],
+["According to the New Cartesian Sign Convention, the power of a convex lens with focal length +25 cm is:",["+2 D","+4 D","-4 D","+25 D"],1,"SCI","P = 100/f(cm) = 100/25 = +4 D."],
+["Which statement about relative humidity is correct?",["Measured directly in g/m³ using a barometer","Warming air without changing water-vapour content increases RH","RH is independent of air temperature","At 100% RH, air is fully saturated and can't hold more vapour"],3,"GEO","At 100% relative humidity the air has reached its dew point / saturation."],
+["Consider statements on physical properties of metals:\nI. Malleability = beaten into sheets; gold is most malleable.\nII. Ductility = drawn into wires; platinum is more ductile than gold.\nWhich is/are correct?",["I only","II only","Both I and II","Neither I nor II"],0,"SCI","I is correct. II is wrong — gold is also the most ductile metal, surpassing platinum."],
+["Aqua regia, 'royal water', is a mixture of concentrated:",["Nitric acid and sulphuric acid, 1:3","Hydrochloric acid and nitric acid, 3:1","Hydrochloric acid and nitric acid, 1:1","Nitric acid and hydrochloric acid, 3:1"],1,"SCI","Aqua regia = conc. HCl : HNO₃ in a 3:1 ratio — dissolves noble metals like gold via oxidation + complexation."],
+["Which statement about Mudiyettu is correct?\nI. Inscribed on UNESCO's ICH list in 2010.\nII. Ritual art form performed to appease Goddess Kali.\nIII. Traditionally performed by Marar and Kuruppu communities.",["1 and 2 only","2 and 3 only","1 and 3 only","1, 2 and 3"],3,"KER","All three statements about Mudiyettu are correct."],
+["Which of the following is correctly associated with Kummattikali?",["Performed with wooden masks and accompanied by the Onavillu","Performed exclusively by trained professional artists","Mainly associated with Kasaragod, known as Bayalattam","The protagonist is known as Sundara Kakaan"],0,"KER","Kummattikali (Thrissur, Onam) uses painted wooden masks and the bow-shaped Onavillu instrument."],
+["Kani (Kanikkar), a Western Ghats tribe of Kerala, describe their clan history in a 'Kathaganam' called:",["Paththadippattu","Kallanapporu","Bheemanpattu","Thunkippattu"],1,"KER","Kallanapporu is the traditional narrative song chronicling the Kani tribe's clan lineage."],
+["World Environment Day 2026, themed \"Inspired by Nature. For Climate. For Our Future\", will be hosted by which country?",["India","Azerbaijan","Brazil","United Arab Emirates"],1,"CA","Azerbaijan (Baku) was selected by UNEP to host WED 2026."],
+["Chandrayaan-3 soft-landed on the Moon on 23 August 2023 at which location?",["Near the lunar equator","Near the lunar North Pole","Near the lunar South Polar Region","Far side of the Moon"],2,"CA","Landed at Shiv Shakti Point near the lunar South Polar Region — a global first."],
+["The 2030 Asian Games are scheduled to be held in which city?",["Aichi-Nagoya","Doha","Riyadh","None of them"],1,"CA","Doha, Qatar was announced as host in December 2020 by the OCA."],
+["Consider statements on the Arithmetic Logic Unit (ALU):\nI. Performs arithmetic and logical operations, comparisons and decisions.\nII. Data/instructions transfer from storage to the ALU, where processing occurs.\nWhich is/are correct?",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],2,"CS","Both statements correctly describe ALU function within the CPU."],
+["Which is the most important system software acting as an interface between the user and computer hardware?",["Language Processor","Operating System","Application Software","Utility Software"],1,"CS","The Operating System bridges user and hardware, managing resources and services."],
+["Which type of primary memory is volatile and loses contents when power is switched off?",["ROM","EPROM","PROM","RAM"],3,"CS","RAM is volatile — its contents are erased when power is cut, unlike ROM variants."],
+["With reference to the National Education Policy, 1968:\nAssertion (A): NEP 1968 recommended liberal facilities for teaching Sanskrit at school and university stages.\nReason (R): The Policy recognised Sanskrit's importance for Indian languages and cultural unity.\nSelect the correct code:",["Both A and R true, R correctly explains A","Both A and R true, R does not explain A","A true, R false","A false, R true"],0,"EDU","Both are true, and R (Sanskrit's role in language development and cultural unity) directly explains A."],
+["According to NPE 1986, part-time education and correspondence courses should be developed on a large scale at which stage?",["Primary stage","Secondary stage only","University stage","Pre-primary stage"],2,"EDU","NPE 1986 emphasized part-time/correspondence courses at the University stage for wider access."],
+["With reference to Revised NPE (1992) & POA 1992:\nI. Operation Blackboard envisaged two large all-weather rooms, blackboards, maps, charts etc. in primary schools.\nII. NPE aimed at universal enrolment/retention of children up to 16 years of age.\nWhich is/are correct?",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],3,"EDU","I is essentially correct (though POA 1992 raised it to 3 rooms). II is wrong — the target age for Universalisation of Elementary Education was 14 years, not 16."],
+["A government school admits a child with mild locomotor disability in the same classroom with support arrangements. Per POA 1992, this is consistent with which objective?",["Education only through special schools","Integrating children with disabilities as equal partners","Restricting disabled students to vocational education","Education exclusively through voluntary organisations"],1,"EDU","POA 1992 advocated Integrated Education — mainstreaming children with disabilities as equal partners."],
+["With reference to Yashpal Committee recommendations:\nI. Achievement-based competitions should be discouraged (may deprive joyful learning).\nII. Curriculum/textbook preparation should be decentralised.\nIII. A contingency amount of not less than 20% of the salary bill for school pedagogical equipment.\nWhich is/are correct?",["1 and 2 only","2 and 3 only","1 and 3 only","1, 2 and 3"],0,"EDU","I & II correct. III is wrong — the committee recommended not less than 10% of the salary bill, not 20%."],
+["According to the 2004 UPA NCMP, which fund was created to support universal basic education via the education cess?",["National Education Fund","Prathamik Shiksha Kosh","National Literacy Fund","Sarva Shiksha Kosh"],1,"EDU","The Prathamik Shiksha Kosh received education-cess proceeds, funding SSA and Mid-Day Meal schemes."],
+["With reference to NEP 1986:\nI. Operation Blackboard provided essential facilities including adequate teachers and infrastructure in primary schools.\nII. Jawahar Navodaya Vidyalayas were free residential schools to nurture rural talent.\nWhich is/are INCORRECT?",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],3,"EDU","Both statements are correct descriptions of NEP 1986 initiatives."],
+["With reference to the Radhakrishnan Commission (1948-49) Terms of Reference:\nI. Suggested improvements in recruitment, pay, service conditions of university teachers.\nII. Recommended measures for student welfare (health, hostels, guidance, extracurricular).\nIII. Considered the role of religious instruction in universities.\nWhich is/are correct?",["1 and 2 only","2 and 3 only","1 and 3 only","1, 2 and 3"],3,"EDU","All three were part of the Radhakrishnan (University Education) Commission's mandate."],
+["The Radhakrishnan Commission recommended religious education in colleges through which approach?",["Compulsory only in the final degree year","Begin with silent meditation, progress through study of religious leaders, scriptures and philosophy of religion","Only scriptures of the student's own religion","Complete exclusion of religious education"],1,"EDU","The Commission proposed a structured, non-sectarian approach: meditation, comparative study of leaders/scriptures, then philosophy of religion."],
+["According to the Mudaliar Commission (1952-53), which was recommended regarding secondary education?",["Age 10-16, six years","Age 12-18, two stages of three years each","Continue to 12th class, then a two-year degree","Age 11-17, divided into 3 years Junior High + 4 years High School"],3,"EDU","Mudaliar Commission proposed a 7-year secondary structure: 11-17 years, 3+4 year split."],
+["With reference to development of university education in India:\nI. Inter-University Board (1925), later Association of Indian Universities, promoted cooperation among universities.\nII. Sargeant Report (1944) recommended a University Grants Committee, set up in 1945 for Aligarh, Banaras and Delhi.\nWhich is/are correct?",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],2,"EDU","Both statements correctly trace the pre-UGC history of university oversight in India."],
+["With reference to the National Knowledge Commission (NKC):\nI. Constituted 13 June 2005 as a high-level advisory body to the President of India.\nII. Original three-year time-frame: 2 Oct 2005 to 2 Oct 2008, later extended to 31 March 2009.\nWhich is/are correct?",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],1,"EDU","I is wrong — NKC advised the Prime Minister, not the President. II is broadly correct (extended to Dec 2008 per most sources, close to the stated period)."],
+["Under Section 12A of the UGC Act, 1956, which is a UGC power regarding fees charged by colleges?",["Prescribe a uniform fee structure for all colleges","Permit colleges to collect donations if approved by the university","Regulate only examination fees, not admission fees","Regulate fees where excessive fees may exclude meritorious candidates"],3,"EDU","Section 12A empowers UGC to prevent commercialization — ensuring high fees don't block deserving students."],
+["The Suez Canal, opened in 1869, connects which two water bodies?",["Red Sea and Arabian Sea","Mediterranean Sea and Red Sea","Mediterranean Sea and Arabian Sea","Red Sea and Persian Gulf"],1,"GEO","The Suez Canal cuts through Egypt's Isthmus of Suez, linking the Mediterranean Sea to the Red Sea."],
+["With reference to India's position on Palestine:\nI. India has officially recognised Palestine as a state, supporting an independent sovereign Palestinian state.\nII. India supports a Two-State Solution with Israel and Palestine coexisting in peace.\nWhich is/are correct?",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],2,"CA","India recognised Palestine in 1988 and consistently backs a Two-State Solution."],
+["With reference to PM Modi's Cyprus visit:\nI. Cyprus divided since 1974 into Republic of Cyprus and Northern Cyprus (supported by Türkiye).\nII. PM Modi received Cyprus's highest civilian award, the Grand Cross of the Order of Makarios III.\nWhich is/are correct?",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],2,"CA","Both statements are accurate regarding the Cyprus division and the honour conferred on PM Modi."],
+["With reference to the GENIUS Act, passed by the U.S. Senate:\nI. Establishes a regulatory framework for USD-linked stablecoins.\nII. Requires issuers to maintain 100% reserve backing and comply with AML rules.\nWhich is/are correct?",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],2,"CA","The GENIUS Act mandates full reserve backing and AML compliance for dollar-pegged stablecoin issuers."],
+["Which correctly describes the Monetary Policy Committee (MPC) of the RBI?",["Constituted under Section 45ZB of the RBI Act, 1934; six members","Constituted under Article 280; six members","Constituted under Section 45ZB; consists only of RBI officials","Constituted under the Banking Regulation Act, 1949; eight members"],0,"ECO","MPC is a 6-member body under RBI Act Section 45ZB — the Governor, a Deputy Governor, one RBI nominee and three external members."],
+["\"Aapki Poonji Aapka Adhikar\" initiative is primarily associated with which of the following?",["Providing subsidised loans to small businesses","Recovering unclaimed financial assets of people","Promoting digital payments in rural areas","Providing insurance coverage to bank depositors"],1,"CA","This campaign helps citizens reclaim unclaimed money in bank accounts, FDs, insurance, shares and mutual funds."],
+["Under the Amrit Bharat Station Scheme, which model is used for developing most railway stations?",["Build-Operate-Transfer (BOT)","Public-Private Partnership (PPP)","Design-Build-Finance-Operate (DBFO)","Engineering, Procurement and Construction (EPC)"],3,"CA","Most station upgrades use the EPC model, with a single contractor handling engineering, procurement and construction."],
+["With reference to the Deputy Speaker of the Lok Sabha:\nI. Office under Article 93; no specific time limit for election is prescribed.\nII. Elected by the Lok Sabha from among its members by simple majority.\nWhich is/are INCORRECT?",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],3,"POL","Both statements are correct descriptions of Article 93's Deputy Speaker provisions."],
+["With reference to the Supreme Court's decision on timelines for Bills:\nI. SC prescribed a 3-month timeline for the President to decide Bills reserved under Article 201, citing MHA Guidelines (2016) and Sarkaria Commission.\nII. Article 201 itself prescribes a 3-month time limit for the President.\nIII. Under Article 143, the President may seek the SC's advisory opinion, generally not binding.\nWhich is/are correct?",["1 and 3 only","1 and 2 only","2 and 3 only","1, 2 and 3"],0,"POL","I & III correct. II is wrong — Article 201 itself prescribes no time limit; the SC imposed the 3-month timeline via its ruling."],
+["Under which Article of the Indian Constitution can the Vice-President resign from office?",["Article 63","Article 67(a)","Article 68","Article 72"],1,"POL","Article 67(a) allows the VP to resign by writing addressed to the President."],
+["Which change was made to the Preamble by the 42nd Constitutional Amendment Act, 1976?",["Added Socialist and Secular; changed 'Unity of the Nation' to 'Unity and Integrity of the Nation'","Added Socialist and Federal; changed to 'Unity and Integrity of India'","Added Secular and Democratic; removed 'Sovereign'","Added Socialist and Secular; changed 'Democratic Republic' to 'Federal Republic'"],0,"POL","The 42nd Amendment added Socialist, Secular, Integrity — the only amendment ever made to the Preamble."],
+["Which UGC grant is primarily used to meet recurring expenditure such as salaries, electricity, telephone bills and maintenance?",["Development Grant","Maintenance (Non-Plan) Grant","Research Grant","Infrastructure Grant"],1,"EDU","Maintenance (Non-Plan) Grants cover day-to-day recurring operational costs, unlike Development Grants for long-term growth."],
+["Lumpy Skin Disease (LSD) is caused by a virus belonging to which genus?",["Orthopoxvirus","Capripoxvirus","Morbillivirus","Flavivirus"],1,"SCI","LSD virus belongs to genus Capripoxvirus (family Poxviridae), alongside Sheep pox and Goat pox viruses."],
+["What is the longitudinal extent of India?",["68°7' E to 97°25' E","68°7' E to 95°25' E","70°7' E to 97°25' E","68°4' E to 97°6' E"],0,"GEO","From Guhar Moti, Gujarat (68°7'E) to Kibithu, Arunachal Pradesh (97°25'E)."],
+["The Tropic of Cancer passes through which of the following states?\nI. Gujarat  II. Rajasthan  III. Tripura  IV. Maharashtra",["1 and 2 only","3 and 4 only","1, 2 and 3 only","1, 2, 3 and 4"],2,"GEO","The Tropic of Cancer crosses 8 states including Gujarat, Rajasthan, Tripura — but not Maharashtra."],
+["What is the largest number NOT expressible in the form 5x + 8y, where x and y are non-negative integers?",["14","37","27","No such number exists"],2,"QA","Frobenius number = ab − a − b for coprime a,b = 5×8 − 5 − 8 = 40 − 13 = 27."],
+["A can finish a work in 10 days; B in 15 days. B works alone for 5 days, then A completes the rest. How many days did A work?",["4","5","6","7"],3,"QA","B does 5×(1/15)=1/3 of work in 5 days; remaining 2/3 ÷ (1/10 per day) ≈ 6.67, rounds up to 7 days for A to finish."],
+["A train 150 m long runs at 72 km/h. How long to cross a man running at 6 km/h in the same direction?",["8.2 sec","9 sec","8.7 sec","7.7 sec"],0,"QA","Relative speed = 72−6=66 km/h = 18.33 m/s; time = 150/18.33 ≈ 8.2 sec."],
+["Two towns A and B are 120 km apart. A car starts from A at 55 km/h and another from B at 45 km/h, moving towards each other. When will they meet?",["70 min","72 min","83 min","85 min"],1,"QA","Relative speed = 100 km/h; time = 120/100 = 1.2 h = 72 minutes."],
+["The sum of the first three terms of a GP is 21 and their product is 216. What is the common ratio?",["3","5","4","2"],3,"QA","Middle term a=6 (from a³=216); solving 2r²−5r+2=0 gives r=2 or r=1/2; terms 3,6,12 fit with r=2."],
+["Find the odd one out: 36, 49, 64, 81",["36","49","64","81"],1,"REA","All are perfect squares (6²,7²,8²,9²); 49's root (7) is prime while 6, 8, 9 are composite — making 49 the odd one out."],
+["If LION is coded as PNKQ, what will be the code of TIGER?",["VNTGI","VKTGI","TVKIG","GKITN"],2,"REA","Each letter is shifted +2, then the resulting word is rotated one step right: TIGER → V-K-I-G-T → TVKIG."],
+["LION : Carnivore : : COW : ?",["Mammal","Omnivore","Herbivore","Reptile"],2,"REA","A lion is a carnivore (eats meat); a cow is an herbivore (eats plants) — matching dietary classification."],
+["At 3:45, what is the angle (in degrees) between the hour and minute hands of an ordinary clock?",["157.5","180","156.5","167.5"],0,"QA","Minute hand at 270°, hour hand at 90°+22.5°=112.5°; difference = 157.5°."],
+["What is the remainder when 17103 is divided by 5?",["4","3","2","1"],1,"QA","17 ≡ 2 (mod 5); powers of 2 mod 5 cycle every 4 (2,4,3,1); 103 mod 4 = 3 → remainder = 3."],
+["Select the word opposite in meaning to: DEBONAIR",["Stiff","Cheerless","Courteous","Pleasant"],1,"ENG","'Cheerless' (gloomy, joyless) is the opposite of 'debonair' (charming, cheerful, confident)."],
+["Convert to Direct Speech: \"Father told Peter to clean his shoes.\"",["\"Clean your shoes, Peter,\" says father.","\"Clean your shoes, Peter,\" told father.","\"Clean your shoes, Peter,\" asked father.","\"Clean your shoes, Peter,\" said father."],3,"ENG","An imperative reported with 'told' converts to direct speech using 'said' (or 'said to') as the reporting verb."],
+["Select the most appropriate synonym of 'Capable': \"Jayesh was competent and the best candidate... whereas others were inefficient and irritating.\"",["Best","Irritating","Competent","Inefficient"],2,"ENG","'Competent' directly means having the necessary ability/skill — synonymous with 'capable'."],
+["Convert to Passive Voice: \"Who is singing such a sweet song?\"",["By whom is such a sweet song sang?","By whom has such a sweet song sung?","By whom is such a sweet song sung?","By whom is such a sweet song being sung?"],3,"ENG","Present continuous passive: is/am/are + being + past participle → 'is being sung'."],
+["Due to heavy rains, the match was called ____",["Of","Off","Down","Out"],1,"ENG","'Called off' is the correct phrasal verb meaning cancelled."],
+["Find the correctly spelt word:",["Embarrass","Embarrass","Embaras","Embarras"],0,"ENG","'Embarrass' (double r, double s) is the correct spelling; other options misspell it."],
+["Select the correct option of the idiom/phrase: \"In a nutshell\"",["To speak against one to another","To object strongly","In very brief form","To push out slowly"],2,"ENG","'In a nutshell' means to state something very briefly / concisely."],
+["Select the correct option of the idiom/phrase: \"To leave someone in the lurch\"",["To accept punishment for something you have done","To desert someone in his difficulties","A false invention/rumour","Learned person"],1,"ENG","'Leave someone in the lurch' means to abandon them in a difficult situation."],
+["Find the correctly spelt word:",["Abducter","Abductor","Abdactor","abductar"],1,"ENG","'Abductor' is the correct spelling (a person/muscle that abducts)."],
+["Fill in the blanks: \"Work should be guided by some______ desire of altruism and __________\"",["genuine; philanthropy","false; honesty","shallow; ability","good; liberty"],0,"ENG","'Genuine' pairs logically with the positive, benevolent sense of 'altruism' and 'philanthropy'."],
+["ശരിയായ വാക്യമേത്?",["ചില വാക്കുകൾക്ക് അർത്ഥ പരിമാണം വന്നു ചേർന്നിട്ടുണ്ട്","ആ കവിത ഹൃദയസ്പൃക്കാണ്","വീണ്ടും ഒരിക്കൽ കൂടി ഞാനദ്ദേഹത്തെ കാണാൻ പോകും","ആമോദ ഹർഷത്തോടെയാണ് ഞങ്ങൾ അദ്ദേഹത്തെ വരവേറ്റത്"],1,"MAL","'ഹൃദയസ്പൃക്ക്' എന്ന പ്രയോഗത്തോടെയുള്ള വാക്യമാണ് വ്യാകരണപരമായി ശരി."],
+["'ഉദ്ധതം' എന്ന പദത്തിന്റെ വിപരീതം",["അനുദ്ധതം","അവനതം","സൗമ്യം","അവമതം"],2,"MAL","'ഉദ്ധതം' (അഹങ്കാരം) എന്നതിന്റെ വിപരീതം 'സൗമ്യം' (ശാന്തത) ആണ്."],
+["സ്ത്രീലിംഗമല്ലാത്തത് ഏത്?",["പുരന്ധ്രി","മാനിനി","ഹരിണി","പ്രേക്ഷി"],3,"MAL","'പ്രേക്ഷി' സ്ത്രീലിംഗ പദമല്ല; മറ്റു മൂന്നും സ്ത്രീലിംഗ പദങ്ങളാണ്."],
+["'Depletion' എന്ന പദത്തിന് നൽകാവുന്ന മലയാള പരിഭാഷ",["മോഷണം","ഭൂഷണം","ശോഷണം","ദൂഷണം"],2,"MAL","'Depletion' (ക്ഷയം/കുറവ്) എന്നതിന് 'ശോഷണം' ആണ് ഉചിതമായ പരിഭാഷ."],
+["ശരിയായ പദം കണ്ടെത്തുക.",["അംസഫലകം","അനുഷ്ടാനം","അദ്യുദീയം","അർദ്ധി"],0,"MAL","'അംസഫലകം' ആണ് ശരിയായി എഴുതപ്പെട്ട പദം."],
+["'പുരാണത്തെ സംബന്ധിച്ചത്' എന്ന് അർത്ഥം വരുന്ന പദം",["പുരാണികം","പൗരാണികം","പൗരാണികൻ","പൗരാണിഹം"],1,"MAL","'പൗരാണികം' ആണ് 'പുരാണത്തെ സംബന്ധിച്ചത്' എന്ന അർത്ഥം വരുന്ന ശരിയായ പദം."],
+["'കലപ്പ' എന്ന വാക്കിന് പര്യായപദം ഏത്?",["സീരം","അശ്മം","ഉഖ","ഉപലം"],0,"MAL","'സീരം' എന്ന പദമാണ് 'കലപ്പ'യുടെ പര്യായം."],
+["'അലിംഗ ബഹുവചന'ത്തിന് ഉദാഹരണം",["പുരുഷന്മാർ","ദേവതമാർ","ശിശുക്കൾ","ഗുരുക്കൾ"],2,"MAL","'ശിശുക്കൾ' ലിംഗഭേദമില്ലാത്ത (അലിംഗ) ബഹുവചന രൂപത്തിന് ഉദാഹരണമാണ്."],
+["'പ്രത്യക്ഷരം' പിരിച്ചെഴുതുക.",["പ്രതി + അക്ഷരം","പ്ര + അക്ഷരം","പ്രത്യൂ + അക്ഷരം","പ്രത്യ + അക്ഷരം"],0,"MAL","'പ്രത്യക്ഷരം' = 'പ്രതി' + 'അക്ഷരം' എന്ന് സന്ധി പിരിക്കാം."],
+["'കേമദ്രുമം' എന്ന ശൈലിയുടെ അർത്ഥം",["വലിയ ഭാഗ്യം","ദാരിദ്ര്യം","മുന്നറിയിപ്പ്","വളരെ കുറച്ച്"],1,"MAL","'കേമദ്രുമം' എന്ന ശൈലിയുടെ അർത്ഥം 'ദാരിദ്ര്യം' (കടുത്ത ദാരിദ്ര്യാവസ്ഥ) എന്നാണ്."]
+];
+
+const QUESTIONS = RAW.map((r,i)=>({id:i,q:r[0],opts:r[1],ans:r[2],cat:r[3],exp:r[4]}));
+const TOTAL_Q = QUESTIONS.length; // 100
+const TOTAL_SECONDS = 90*60;
+
+/* ======================= STATE ======================= */
+const state = {
+  screen:'cover',
+  index:0,
+  answers:{},        // id -> optionIndex (undefined = unvisited, null = skipped)
+  secondsLeft: TOTAL_SECONDS,
+  timerId:null,
+  results:null,
+  openReview:{},
+  reviewFilter:'all'
+};
+
+function qs(sel,root){return (root||document).querySelector(sel);}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function fmtTime(sec){sec=Math.max(0,Math.round(sec));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return (h>0?String(h).padStart(2,'0')+':':'')+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+function letter(i){return ['A','B','C','D'][i];}
+
+/* ======================= COVER SCREEN ======================= */
+function renderCover(){
+  return `
+  <div class="cover">
+    <h1>LA FORCA — University Assistant FLT 1 (2026)</h1>
+    <h2>Full Length Test 1 · Test Code A · UA1010</h2>
+    <div class="meta-grid">
+      <div class="meta-box"><div class="v">${TOTAL_Q}</div><div class="l">Questions</div></div>
+      <div class="meta-box"><div class="v">90</div><div class="l">Minutes</div></div>
+      <div class="meta-box"><div class="v">100</div><div class="l">Max Marks</div></div>
+      <div class="meta-box"><div class="v">-1/3</div><div class="l">Negative Mark</div></div>
+    </div>
+    <div class="rules">
+      <b>Instructions</b><br>
+      1. Each correct answer carries <b>+1 mark</b>; each wrong answer deducts <b>1/3 mark</b>. Unattempted questions get <b>0</b>.<br>
+      2. You have <b>90 minutes</b>. The exam auto-submits when time runs out.<br>
+      3. Use the question palette on the right to jump between questions at any time.<br>
+      4. You can change your answer any number of times before submitting.<br>
+      5. Full analysis — score, category-wise weak areas, and a question-by-question review — is shown after submission.
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="startExam()">▶ Start Exam</button>
+    </div>
+  </div>`;
+}
+
+/* ======================= EXAM SCREEN ======================= */
+function startExam(){
+  state.screen='exam';
+  state.index=0;
+  state.answers={};
+  state.secondsLeft=TOTAL_SECONDS;
+  QUESTIONS.forEach(q=>{state.answers[q.id]=undefined;});
+  startTimer();
+  render();
+}
+function startTimer(){
+  stopTimer();
+  state.timerId=setInterval(()=>{
+    state.secondsLeft-=1;
+    updateTimerDom();
+    if(state.secondsLeft<=0){stopTimer();submitExam();}
+  },1000);
+}
+function stopTimer(){if(state.timerId){clearInterval(state.timerId);state.timerId=null;}}
+function updateTimerDom(){
+  const el=qs('#timerVal');
+  if(!el) return;
+  el.textContent=fmtTime(state.secondsLeft);
+  const box=qs('#timerBox');
+  if(box) box.classList.toggle('low', state.secondsLeft<=300);
+}
+
+function renderExam(){
+  const q=QUESTIONS[state.index];
+  const ans=state.answers[q.id];
+  const optsHtml=q.opts.map((o,idx)=>{
+    if(!o || !o.trim()) return '';
+    const sel=ans===idx?'selected':'';
+    return `<div class="opt ${sel}" onclick="selectOption(${q.id},${idx})">
+      <div class="opt-letter">${letter(idx)}</div><div class="opt-text">${esc(o)}</div>
+    </div>`;
+  }).join('');
+
+  const answeredCount=Object.values(state.answers).filter(v=>v!==undefined && v!==null).length;
+  const skippedCount=Object.values(state.answers).filter(v=>v===null).length;
+
+  const palette=QUESTIONS.map((qq,i)=>{
+    const a=state.answers[qq.id];
+    let cls='pnode';
+    if(i===state.index) cls+=' current';
+    else if(a===null) cls+=' skipped';
+    else if(a!==undefined) cls+=' answered';
+    return `<div class="${cls}" onclick="jumpTo(${i})">${i+1}</div>`;
+  }).join('');
+
+  return `
+  <div class="exam-wrap">
+    <div class="qpanel">
+      <div class="qpanel-head">
+        <div class="qnum">Question <b>${state.index+1}</b> of ${TOTAL_Q}</div>
+        <span class="chip">Answered: ${answeredCount} · Skipped: ${skippedCount}</span>
+      </div>
+      <span class="catpill">${esc(CATS[q.cat]||q.cat)}</span>
+      <p class="qtext">${esc(q.q)}</p>
+      <div>${optsHtml}</div>
+      <div class="qnav">
+        <div class="grp">
+          <button class="btn btn-ghost" onclick="goPrev()" ${state.index===0?'disabled':''}>← Previous</button>
+          <button class="btn btn-ghost" onclick="clearResponse()">Clear Response</button>
+        </div>
+        <div class="grp">
+          <button class="btn btn-ghost" onclick="skipQuestion()">Skip</button>
+          <button class="btn btn-gold" onclick="goNext()">${state.index===TOTAL_Q-1?'Finish':'Save & Next →'}</button>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="timer-box" id="timerBox"><div class="tv mono" id="timerVal">${fmtTime(state.secondsLeft)}</div><div class="tl">Time Remaining</div></div>
+      <div class="legend">
+        <span><i style="background:var(--green)"></i>Answered</span>
+        <span><i style="background:var(--amber)"></i>Skipped</span>
+        <span><i style="background:var(--surface2);border:1px solid var(--surface3)"></i>Unvisited</span>
+      </div>
+      <div class="palette">${palette}</div>
+      <button class="btn btn-danger submit-btn" onclick="confirmSubmit()">Submit Exam</button>
+    </div>
+  </div>`;
+}
+
+function selectOption(id,idx){state.answers[id]=idx;render();}
+function clearResponse(){state.answers[QUESTIONS[state.index].id]=undefined;render();}
+function skipQuestion(){
+  const q=QUESTIONS[state.index];
+  if(state.answers[q.id]===undefined) state.answers[q.id]=null;
+  goNext();
+}
+function goNext(){
+  if(state.index<TOTAL_Q-1){state.index+=1;render();window.scrollTo({top:0,behavior:'smooth'});}
+  else confirmSubmit();
+}
+function goPrev(){if(state.index>0){state.index-=1;render();window.scrollTo({top:0,behavior:'smooth'});}}
+function jumpTo(i){state.index=i;render();window.scrollTo({top:0,behavior:'smooth'});}
+function confirmSubmit(){
+  const answered=Object.values(state.answers).filter(v=>v!==undefined && v!==null).length;
+  const msg=`You have answered ${answered} of ${TOTAL_Q} questions. Submit the exam now?`;
+  if(confirm(msg)) submitExam();
+}
+
+/* ======================= SCORING ======================= */
+function computeResults(){
+  let correct=0,wrong=0,skipped=0;
+  const perQ=[];
+  const byCat={};
+  QUESTIONS.forEach(q=>{
+    const a=state.answers[q.id];
+    let status;
+    if(a===undefined||a===null){status='skipped';skipped++;}
+    else if(a===q.ans){status='correct';correct++;}
+    else {status='wrong';wrong++;}
+    perQ.push({q,selected:(a===undefined?null:a),status});
+    if(!byCat[q.cat]) byCat[q.cat]={correct:0,wrong:0,skipped:0,total:0};
+    byCat[q.cat][status]++;
+    byCat[q.cat].total++;
+  });
+  const attempted=correct+wrong;
+  const finalMark=correct*1 - wrong*(1/3);
+  const accuracy=attempted>0?(correct/attempted)*100:0;
+  const catRows=Object.entries(byCat).map(([cat,v])=>{
+    const att=v.correct+v.wrong;
+    const score=v.correct*1-v.wrong*(1/3);
+    const errRate=att>0?(v.wrong/att)*100:0;
+    return {cat,...v,attempted:att,score,errRate};
+  }).sort((a,b)=>b.errRate-a.errRate || b.wrong-a.wrong);
+  return {total:TOTAL_Q,attempted,correct,wrong,skipped,finalMark,accuracy,catRows,perQ};
+}
+function submitExam(){
+  stopTimer();
+  state.results=computeResults();
+  state.screen='results';
+  state.reviewFilter='all';
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ======================= RESULTS SCREEN ======================= */
+function renderResults(){
+  const r=state.results;
+  const pct=Math.max(0,Math.min(100,r.finalMark));
+  const highPriority=r.catRows.filter(c=>c.errRate>=50 && c.attempted>0);
+
+  const catHtml=r.catRows.map(c=>{
+    const weak=c.errRate>=40;
+    return `<div class="cat-row">
+      <div class="cname">${esc(CATS[c.cat]||c.cat)} ${c.errRate>=50?'<span class="weak-flag">⚠ weak</span>':''}</div>
+      <div class="cat-bar ${weak?'weak':''}"><div style="width:${Math.min(100,(c.correct/(c.total||1))*100).toFixed(0)}%"></div></div>
+      <div class="cat-score mono">${c.correct}/${c.total} · ${c.score.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+
+  const filters=['all','wrong','skipped','correct'];
+  const filterBar=filters.map(f=>`<button class="fchip ${state.reviewFilter===f?'active':''}" onclick="setFilter('${f}')">${f[0].toUpperCase()+f.slice(1)}</button>`).join('');
+
+  const filtered=r.perQ.filter(pc=>state.reviewFilter==='all'?true:pc.status===state.reviewFilter);
+  const reviewHtml=filtered.map((pc,idx)=>{
+    const q=pc.q;
+    const statusIcon={correct:'✓',wrong:'✕',skipped:'–'}[pc.status];
+    const open=state.openReview[q.id]?'open':'';
+    const optsHtml=q.opts.map((o,oi)=>{
+      if(!o||!o.trim()) return '';
+      let cls='ropt';
+      if(oi===q.ans) cls+=' iscorrect';
+      else if(oi===pc.selected) cls+=' iswrong';
+      let tag='';
+      if(oi===q.ans) tag='<span class="mono" style="color:var(--green);font-size:10.5px;">CORRECT</span>';
+      else if(oi===pc.selected) tag='<span class="mono" style="color:var(--red);font-size:10.5px;">YOUR PICK</span>';
+      return `<div class="${cls}"><span>${letter(oi)}. ${esc(o)}</span>${tag}</div>`;
+    }).join('');
+    return `<div class="review-item ${open}" id="rev-${q.id}">
+      <div class="review-head" onclick="toggleReview(${q.id})">
+        <div class="rstatus ${pc.status}">${statusIcon}</div>
+        <div class="rq">Q${q.id+1}. ${esc(q.q.split('\\n')[0])}</div>
+        <div class="rcat">${esc(CATS[q.cat]||q.cat)}</div>
+      </div>
+      <div class="rbody"><div class="rbody-in">
+        ${optsHtml}
+        ${pc.status==='skipped'?'<div style="font-size:11.5px;color:var(--amber);margin-top:6px;">You left this blank</div>':''}
+        <div class="rexp"><b>Explanation:</b> ${esc(q.exp)}</div>
+      </div></div>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="res-hero">
+    <div class="ring" style="--pct:${pct.toFixed(0)}"><b class="mono">${r.finalMark.toFixed(2)}</b></div>
+    <div>
+      <h2>Exam Complete</h2>
+      <p>Final Mark <b class="mono" style="color:var(--gold)">${r.finalMark.toFixed(2)}</b> / 100 &nbsp;·&nbsp; ${r.correct} correct, ${r.wrong} wrong (−1/3 each), ${r.skipped} skipped</p>
+    </div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat"><div class="v mono">${r.total}</div><div class="l">Total Qs</div></div>
+    <div class="stat"><div class="v mono">${r.attempted}</div><div class="l">Attempted</div></div>
+    <div class="stat"><div class="v mono">${r.skipped}</div><div class="l">Unattempted</div></div>
+    <div class="stat good"><div class="v mono">${r.correct}</div><div class="l">Correct</div></div>
+    <div class="stat bad"><div class="v mono">${r.wrong}</div><div class="l">Wrong</div></div>
+    <div class="stat gold"><div class="v mono">${r.accuracy.toFixed(1)}%</div><div class="l">Accuracy</div></div>
+  </div>
+
+  <div class="section-title">📊 Category-wise Analysis ${highPriority.length?`<span class="weak-flag">(${highPriority.length} weak area${highPriority.length>1?'s':''} flagged)</span>`:''}</div>
+  ${catHtml}
+
+  <div class="section-title">📝 Question Review</div>
+  <div class="filterbar">${filterBar}</div>
+  ${reviewHtml || '<div style="color:var(--text-faint);font-size:13px;padding:10px 0;">No questions match this filter.</div>'}
+
+  <div class="btn-row" style="margin-top:22px;">
+    <button class="btn btn-gold" onclick="retakeExam()">↻ Retake Exam</button>
+    <button class="btn btn-ghost" onclick="retryMissed()" ${(r.wrong+r.skipped)===0?'disabled':''}>Retry Missed Only</button>
+    <button class="btn btn-ghost" onclick="backToCover()">Back to Start</button>
+  </div>`;
+}
+function setFilter(f){state.reviewFilter=f;render();}
+function toggleReview(id){
+  state.openReview[id]=!state.openReview[id];
+  const el=qs('#rev-'+id);
+  if(el) el.classList.toggle('open');
+}
+function retakeExam(){startExam();}
+function retryMissed(){
+  const r=state.results;
+  const missed=r.perQ.filter(pc=>pc.status!=='correct').map(pc=>pc.q.id);
+  // Build a temporary reduced question run
+  window.__missedIds = missed;
+  state.screen='exam';
+  state.index=0;
+  state.answers={};
+  state.secondsLeft=TOTAL_SECONDS;
+  missed.forEach(id=>{state.answers[id]=undefined;});
+  state._missedMode=true;
+  state._missedOrder=missed;
+  startTimer();
+  renderMissedMode();
+}
+function backToCover(){
+  state.screen='cover';state.results=null;state._missedMode=false;
+  render();
+}
+
+/* Missed-only exam mode reuses the exam UI but iterates a subset */
+function renderMissedMode(){
+  const order=state._missedOrder;
+  const qid=order[state.index];
+  const q=QUESTIONS[qid];
+  const ans=state.answers[q.id];
+  const optsHtml=q.opts.map((o,idx)=>{
+    if(!o||!o.trim()) return '';
+    const sel=ans===idx?'selected':'';
+    return `<div class="opt ${sel}" onclick="selectMissedOption(${q.id},${idx})"><div class="opt-letter">${letter(idx)}</div><div class="opt-text">${esc(o)}</div></div>`;
+  }).join('');
+  const answeredCount=order.filter(id=>state.answers[id]!==undefined && state.answers[id]!==null).length;
+  const palette=order.map((id,i)=>{
+    const a=state.answers[id];
+    let cls='pnode';
+    if(i===state.index) cls+=' current';
+    else if(a===null) cls+=' skipped';
+    else if(a!==undefined) cls+=' answered';
+    return `<div class="${cls}" onclick="jumpMissed(${i})">${i+1}</div>`;
+  }).join('');
+  qs('#app').innerHTML=`
+    ${appbarHtml()}
+    <div class="exam-wrap">
+      <div class="qpanel">
+        <div class="qpanel-head"><div class="qnum">Retry — Question <b>${state.index+1}</b> of ${order.length}</div><span class="chip">Answered: ${answeredCount}</span></div>
+        <span class="catpill">${esc(CATS[q.cat]||q.cat)}</span>
+        <p class="qtext">${esc(q.q)}</p>
+        <div>${optsHtml}</div>
+        <div class="qnav">
+          <div class="grp"><button class="btn btn-ghost" onclick="goPrevMissed()" ${state.index===0?'disabled':''}>← Previous</button></div>
+          <div class="grp"><button class="btn btn-gold" onclick="goNextMissed()">${state.index===order.length-1?'Finish':'Save & Next →'}</button></div>
+        </div>
+      </div>
+      <div class="sidebar">
+        <div class="timer-box" id="timerBox"><div class="tv mono" id="timerVal">${fmtTime(state.secondsLeft)}</div><div class="tl">Time Remaining</div></div>
+        <div class="palette">${palette}</div>
+        <button class="btn btn-danger submit-btn" onclick="submitMissed()">Submit</button>
+      </div>
+    </div>`;
+}
+function selectMissedOption(id,idx){state.answers[id]=idx;renderMissedMode();}
+function goNextMissed(){
+  const order=state._missedOrder;
+  if(state.answers[order[state.index]]===undefined) state.answers[order[state.index]]=null;
+  if(state.index<order.length-1){state.index+=1;renderMissedMode();}
+  else submitMissed();
+}
+function goPrevMissed(){if(state.index>0){state.index-=1;renderMissedMode();}}
+function jumpMissed(i){state.index=i;renderMissedMode();}
+function submitMissed(){
+  stopTimer();
+  // score only the missed subset, but reuse full computeResults filtered
+  const order=state._missedOrder;
+  let correct=0,wrong=0,skipped=0;
+  const perQ=[];
+  const byCat={};
+  order.forEach(id=>{
+    const q=QUESTIONS[id];
+    const a=state.answers[id];
+    let status;
+    if(a===undefined||a===null){status='skipped';skipped++;}
+    else if(a===q.ans){status='correct';correct++;}
+    else {status='wrong';wrong++;}
+    perQ.push({q,selected:(a===undefined?null:a),status});
+    if(!byCat[q.cat]) byCat[q.cat]={correct:0,wrong:0,skipped:0,total:0};
+    byCat[q.cat][status]++;byCat[q.cat].total++;
+  });
+  const attempted=correct+wrong;
+  const finalMark=correct*1-wrong*(1/3);
+  const accuracy=attempted>0?(correct/attempted)*100:0;
+  const catRows=Object.entries(byCat).map(([cat,v])=>{
+    const att=v.correct+v.wrong;
+    const score=v.correct*1-v.wrong*(1/3);
+    const errRate=att>0?(v.wrong/att)*100:0;
+    return {cat,...v,attempted:att,score,errRate};
+  }).sort((a,b)=>b.errRate-a.errRate || b.wrong-a.wrong);
+  state.results={total:order.length,attempted,correct,wrong,skipped,finalMark,accuracy,catRows,perQ};
+  state.screen='results';
+  state.reviewFilter='all';
+  state._missedMode=false;
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ======================= SHELL / ROUTER ======================= */
+function appbarHtml(){
+  return `<div class="appbar">
+    <div class="brand"><b>LA FORCA · University Assistant FLT 1</b><span>2026 · Full Length Test 1</span></div>
+    <span class="chip">${state.screen==='exam'?'In Progress':state.screen==='results'?'Completed':'Not Started'}</span>
+  </div>`;
+}
+function render(){
+  let body='';
+  if(state.screen==='cover') body=renderCover();
+  else if(state.screen==='exam') body=renderExam();
+  else if(state.screen==='results') body=renderResults();
+  qs('#app').innerHTML = appbarHtml() + body;
+  if(state.screen==='exam') updateTimerDom();
+}
+
+render();
+</script>
+</body>
+</html>

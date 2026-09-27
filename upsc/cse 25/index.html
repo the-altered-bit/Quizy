@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UPSC CSP 2026 Quiz</title>
+<style>
+  :root{
+    --bg:#0f1115;
+    --panel:#171a21;
+    --panel2:#1e222b;
+    --border:#2a2f3a;
+    --text:#e8eaed;
+    --muted:#9aa4b2;
+    --accent:#6ea8fe;
+    --accent2:#8b5cf6;
+    --good:#3ddc97;
+    --bad:#ff6b6b;
+    --warn:#ffcc66;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 600px at 10% -10%, #1a2030 0%, var(--bg) 60%);
+    color:var(--text);
+    min-height:100vh;
+  }
+  .wrap{max-width:860px;margin:0 auto;padding:24px 16px 80px;}
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:20px;flex-wrap:wrap;gap:10px;
+  }
+  h1{font-size:1.35rem;margin:0;letter-spacing:.2px;}
+  h1 span{color:var(--accent);}
+  .badge{
+    background:var(--panel2);border:1px solid var(--border);
+    padding:6px 12px;border-radius:999px;font-size:.8rem;color:var(--muted);
+  }
+  .card{
+    background:var(--panel);border:1px solid var(--border);
+    border-radius:16px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .setup-grid{display:grid;gap:14px;margin-top:10px;}
+  .option-row{
+    display:flex;gap:10px;flex-wrap:wrap;
+  }
+  .pill-btn{
+    background:var(--panel2);border:1px solid var(--border);color:var(--text);
+    padding:12px 16px;border-radius:12px;cursor:pointer;font-size:.95rem;
+    transition:.15s ease;flex:1;min-width:140px;text-align:center;
+  }
+  .pill-btn:hover{border-color:var(--accent);}
+  .pill-btn.selected{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#0b0d12;font-weight:600;border-color:transparent;
+  }
+  .muted{color:var(--muted);font-size:.85rem;}
+  .btn{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#0b0d12;border:none;padding:13px 22px;border-radius:12px;
+    font-weight:700;font-size:1rem;cursor:pointer;transition:.15s ease;
+  }
+  .btn:hover{filter:brightness(1.08);}
+  .btn.secondary{
+    background:var(--panel2);color:var(--text);border:1px solid var(--border);font-weight:600;
+  }
+  .btn.small{padding:9px 16px;font-size:.85rem;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;}
+
+  /* Quiz screen */
+  .progress-wrap{
+    height:8px;background:var(--panel2);border-radius:999px;overflow:hidden;margin-bottom:16px;
+    border:1px solid var(--border);
+  }
+  .progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .2s ease;}
+  .qmeta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
+  .qnum{color:var(--accent);font-weight:700;font-size:.95rem;}
+  .qtext{font-size:1.08rem;line-height:1.55;margin:10px 0 18px;white-space:pre-wrap;}
+  .opt{
+    display:flex;align-items:flex-start;gap:12px;background:var(--panel2);
+    border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;
+    cursor:pointer;transition:.15s ease;line-height:1.45;
+  }
+  .opt:hover{border-color:var(--accent);}
+  .opt.selected{border-color:var(--accent);background:#1b2a44;}
+  .opt input{margin-top:3px;accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;}
+  .navrow{display:flex;justify-content:space-between;align-items:center;margin-top:22px;flex-wrap:wrap;gap:10px;}
+  .jumpgrid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:6px;margin-top:16px;
+    max-height:160px;overflow-y:auto;padding:4px;
+  }
+  .jumpbtn{
+    background:var(--panel2);border:1px solid var(--border);color:var(--muted);
+    border-radius:8px;padding:6px 0;font-size:.75rem;cursor:pointer;text-align:center;
+  }
+  .jumpbtn.answered{background:#173324;color:var(--good);border-color:#245c3f;}
+  .jumpbtn.current{outline:2px solid var(--accent);}
+
+  /* Results */
+  .stat-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:18px 0;
+  }
+  .stat{
+    background:var(--panel2);border:1px solid var(--border);border-radius:14px;
+    padding:16px;text-align:center;
+  }
+  .stat .num{font-size:1.6rem;font-weight:800;}
+  .stat.correct .num{color:var(--good);}
+  .stat.wrong .num{color:var(--bad);}
+  .stat.skipped .num{color:var(--warn);}
+  .stat.score .num{color:var(--accent);}
+  .stat .lbl{color:var(--muted);font-size:.78rem;margin-top:4px;}
+  .review-item{
+    border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;background:var(--panel2);
+  }
+  .review-item.correct{border-left:4px solid var(--good);}
+  .review-item.wrong{border-left:4px solid var(--bad);}
+  .review-item.skipped{border-left:4px solid var(--warn);}
+  .review-q{font-weight:600;margin-bottom:8px;white-space:pre-wrap;}
+  .review-opt{font-size:.9rem;padding:4px 0;color:var(--muted);}
+  .review-opt.correct-ans{color:var(--good);font-weight:600;}
+  .review-opt.your-wrong{color:var(--bad);font-weight:600;text-decoration:line-through;}
+  details summary{cursor:pointer;color:var(--accent);margin-top:14px;font-weight:600;}
+  .hidden{display:none !important;}
+  .footer-note{color:var(--muted);font-size:.78rem;text-align:center;margin-top:26px;}
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span>UPSC</span> CSP 2026 Quiz</h1>
+    <div class="badge" id="topBadge">Dark Mode</div>
+  </header>
+
+  <!-- SETUP SCREEN -->
+  <div class="card" id="setupScreen">
+    <p class="muted" style="margin-top:0">Choose a paper. Correct answer: <b style="color:var(--good)">+1</b> mark. Wrong answer: <b style="color:var(--bad)">−0.333</b> mark. Unattempted: 0.</p>
+    <div class="setup-grid">
+      <div>
+        <div class="muted" style="margin-bottom:8px">Select Paper</div>
+        <div class="option-row" id="paperChoice">
+          <div class="pill-btn" data-paper="1">GS Paper I (99 Qs)</div>
+          <div class="pill-btn" data-paper="2">GS Paper II – CSAT (80 Qs)</div>
+          <div class="pill-btn" data-paper="both">Both (179 Qs)</div>
+        </div>
+      </div>
+      <div>
+        <div class="muted" style="margin-bottom:8px">Question Order</div>
+        <div class="option-row" id="orderChoice">
+          <div class="pill-btn selected" data-order="seq">Sequential</div>
+          <div class="pill-btn" data-order="shuffle">Shuffled</div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn" id="startBtn">Start Quiz</button>
+    </div>
+    <p class="muted" style="margin-top:14px">Note: One question (Q89, Paper I) was officially dropped by UPSC and is excluded from scoring — it is not included here.</p>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="card hidden" id="quizScreen">
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+    <div class="qmeta">
+      <div class="qnum" id="qNum"></div>
+      <div class="muted" id="qCounter"></div>
+    </div>
+    <div class="qtext" id="qText"></div>
+    <div id="optsWrap"></div>
+    <div class="navrow">
+      <button class="btn secondary small" id="prevBtn">← Previous</button>
+      <button class="btn secondary small" id="clearBtn">Clear Choice</button>
+      <button class="btn small" id="nextBtn">Next →</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="submitBtn">Submit Quiz</button>
+    </div>
+    <details>
+      <summary>Jump to question</summary>
+      <div class="jumpgrid" id="jumpGrid"></div>
+    </details>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="card hidden" id="resultScreen">
+    <h2 style="margin-top:0">Results</h2>
+    <div class="stat-grid">
+      <div class="stat correct"><div class="num" id="statCorrect">0</div><div class="lbl">Correct</div></div>
+      <div class="stat wrong"><div class="num" id="statWrong">0</div><div class="lbl">Wrong</div></div>
+      <div class="stat skipped"><div class="num" id="statSkipped">0</div><div class="lbl">Unattempted</div></div>
+      <div class="stat score"><div class="num" id="statScore">0</div><div class="lbl">Score</div></div>
+    </div>
+    <p class="muted" id="statSummary"></p>
+    <div class="row">
+      <button class="btn secondary" id="retryBtn">Try Again</button>
+    </div>
+    <details>
+      <summary>Review all answers</summary>
+      <div id="reviewWrap" style="margin-top:14px"></div>
+    </details>
+  </div>
+
+  <div class="footer-note">Answers sourced from the official UPSC Provisional Answer Key (Series D), CSP 2026.</div>
+</div>
+
+<script>
+/* =============== QUESTION DATA =============== */
+// Paper I - General Studies Paper I (Official Answer Key: Series D). Q89 was officially dropped, excluded below.
+const PAPER1 = [
+[1,"Consider the following assertion:\nIn the Pleistocene period either the Yamuna once flowed into the Indus, or the Sutlej flowed into the Yamuna and one major tributary of either had shifted from the Ganga to the Indus or vice versa.\nWhich of the following is/are the basis of the above assertion?\n1. The Nadi-Sukta of the Rigveda\n2. The explorations of the Sutlej and the Yamuna by Robert Bruce Foote\n3. The presence of the same species of dolphins in both the Indus and the Ganga river systems",["1 only","2 only","1 and 2","3"],3],
+[2,"What does an empty seat represent in early Buddhist iconography?",["The meditation of the Buddha","The Buddha's First Sermon","The Buddha's Mahaparinibbana","The Buddha's Mahabhinishkramana"],0],
+[3,"Which of the following pairs of ancient and modern names of rivers is/are correctly matched?\n1. Vitasta : Chenab\n2. Asikni : Jhelum\n3. Parushni : Ravi\n4. Yavyavati : Beas",["1 and 2","3 and 4","3 only","4 only"],2],
+[4,"Which of the following statements on the Amaravati Stupa and its relief sculpture is/are correct?\n1. It was located in the lower Krishna valley.\n2. In India, it was next only to the Sanchi Stupa in size.\n3. The Amaravati school of sculpture made a lasting impact on the later South Indian sculpture, and its products were carried to Sri Lanka and South-east Asia.",["1 only","1 and 3 only","2 and 3 only","1, 2 and 3"],1],
+[5,"Which of the following pairs of the king and his dynasty in early historical Tamilakam is/are not correctly matched?\n1. Senguttuvan : Chera\n2. Udiyanjeral : Chola\n3. Nedunjeliyan : Pandya",["1 and 2","2 only","1 and 3","3 only"],1],
+[6,"Which of the following factors contributed to the formation of the Forward Bloc by Subhas Chandra Bose in 1939?\n1. Bose failed to win the confidence of Mahatma Gandhi.\n2. The Congress Left was disunited and failed to support Bose.\n3. The Communists did not support Bose in his endeavours.\n4. The supporters of M.N. Roy and socialist leaders like Jayaprakash Narayan preferred Congress unity to supporting Bose.",["1, 2 and 3","1, 2 and 4","1, 3 and 4","2 and 4 only"],1],
+[7,"Consider the following statements regarding the British policy in Awadh immediately after its annexation in 1856:\n1. The taluqdars were dispossessed of their estates but allowed to retain their arms and forts.\n2. A Summary Revenue Settlement was made in 1856 assuming that the taluqdars were outsiders.\n3. The British believed in taking revenue directly from the peasants by removing the taluqdars.\nWhich of the statements given above is/are correct?",["2 and 3 only","1 and 3 only","1, 2 and 3","2 only"],0],
+[8,"Consider the following assertion:\nThe genesis of political alliances based on community lay in the very nature of the Montague-Chelmsford Reforms, 1919.\nWhich of the following statements support/supports the above assertion?\n1. Reforms retained and extended the principle of separate electorates.\n2. Separate electorates were supposed to counter Indian nationalism, which was growing stronger.\n3. Deprived classes rallied around the favours inherent in separate electorates.",["1 only","2 and 3 only","1 and 2 only","1, 2 and 3"],3],
+[9,"Pandit Mallikarjun Mansur, the famous classical singer from Karnataka, represented the:",["Agra Gharana","Gwalior Gharana","Patiala Gharana","Jaipur-Atrauli Gharana"],3],
+[10,"In which one among the following texts does the term kshetra-patni ('mistress of the field') originate?",["Rigveda","Atharvaveda","Ashtadhyayi","Arthashastra"],1],
+[11,"Which one of the following Carnatic music ragas is similar to Raga Bilawal in Hindustani music?",["Nat Bhairavi","Kamavardhini","Hanumatodi","Dheera Shankarabharanam"],3],
+[12,"The artificially fixed rupee-sterling exchange rate prescribed by the Hilton-Young Commission (1926) was adopted by the British Government for which one of the following reasons?",["Aiding the flow of remittances from India and maintaining India's creditworthiness","Providing support to Indian importers","Encouraging export of cotton produce from India","Preventing depreciation of the Rupee in terms of gold"],0],
+[13,"Consider the following statements:\nI. Pali texts contain the first definite references to coins, e.g., kahapana, nikkha, kamsa, and kakanika.\nII. The literary evidence from Pali texts is corroborated by archaeological evidence of punch-marked coins from many sites, most of them made of silver.\nThe above statements have been associated with which of the following?\n1. Emergence of urban life\n2. Transition to money economy",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],2],
+[14,"Which of the following temples has/have a Nagara-style shikhara?\n1. Malegitti Shivalaya, Badami\n2. Huchimalligudi Temple, Aihole\n3. Dashavatara Temple, Deogarh\n4. Virupaksha Temple, Pattadakal",["1 and 2","2 and 3","3 only","3 and 4"],1],
+[15,"Among the four main forms of existence of life recognized in Jainism, which one of the following is not included?",["Deva (gods)","Yaksha (demi-gods)","Manushya (humans)","Tiryancha (animals and plants)"],1],
+[16,"The Hallisalasya painting in the Bagh Caves represents:",["A joyous folk dance","Buddha in a meditative pose","The depiction of Shiva and Parvati on Kailasha","Samudramanthan (Churning of the Ocean)"],0],
+[17,"Consider the following statements relating to the use of the place-value system in India:\n1. The earliest epigraphic use of the place-value system in India is found in the Mankani plates from Gujarat (AD 595–596).\n2. In the ninth century, place-values become general in inscriptions all over India.\n3. The place-values have been found in Sanskrit inscriptions in South-east Asia as early as the seventh century.\nWhich of the statements given above are correct?",["1 and 2 only","1 and 3 only","2 and 3 only","1, 2 and 3"],3],
+[18,"Consider the following statements about the archaeological findings in Harappan towns:\nI. There is wide occurrence of spindle-whorls in the houses but absence of spinning wheels.\nII. Weights and measurement scales, complete with graduations, have been discovered.\nIII. There are houses built in large part with baked bricks, around relatively spacious courtyards, with their own wells, bathing platforms, and large rooms.\nWhich of the following inferences can be drawn from the above statements?\n1. Statement I suggests that spinning was a laborious activity done at home.\n2. Statement II suggests the extent of the scientific knowledge that the Harappans possessed.\n3. Statement III suggests the emergence of a common property system.",["1 and 2 only","2 and 3 only","1 and 3 only","1, 2 and 3"],0],
+[19,"Which one of the following statements about the Eka Movement and Bardoli Satyagraha is correct?",["The Eka Movement was throughout supported and organized by the Congress while Bardoli Satyagraha was initially independent of Congress influence and was only in the last stages supported by the Congress.","The Eka Movement was provided leadership by the taluqdars of Awadh, whereas the Bardoli Satyagraha was a movement of the landless labourers.","The Bardoli Satyagraha was a campaign against the enhancement of land revenue, while the Eka Movement was a protest against excessive extraction of rents.","The Eka Movement was located in the Varanasi and Mirzapur districts of the present-day U.P., while the Bardoli Satyagraha took place in Saurashtra."],2],
+[20,"Consider the following statements about the Rigvedic period:\nI. Irrigation from wells allowed agriculture to expand away from flood plains and strips on river margins into the present Punjab and Haryana plains having underground water levels reasonably close to the surface.\nII. Draught-animal power was employed to draw up water out of the wells.\nWhich of the following information support/supports the above statements?\n1. There is evidence in the Rigveda of the use of ashma chakra (stone pulley wheel) and ahava (strapped wooden pails) to draw up water.\n2. Mention has been made in the Rigveda of the use of implements like parashu/kulisha (axe) and datra/sreni (sickle).\n3. There is a history of the use of ox, even before the Rigveda, for ploughing the land and pulling the carts.",["1 and 2 only","1, 2 and 3","1 and 3 only","3 only"],2],
+[21,"Tungurahua Volcano, which was declared a Global Geopark by UNESCO in 2025, is situated in which one among the following countries?",["Ecuador","Peru","Bolivia","Colombia"],0],
+[22,"With reference to Madhav National Park, which of the following statements is/are correct?\n1. It was declared a Tiger Reserve in India in 2025.\n2. Sakhya Sagar, which is designated as a Ramsar Site, is situated within this National Park.\n3. Its area is shared between Madhya Pradesh and Rajasthan.",["1 only","1 and 2","2 and 3","3 only"],1],
+[23,"With reference to the climate of Andaman and Nicobar Islands, which of the following statements is/are correct?\n1. The climate can be defined as a humid, tropical coastal climate.\n2. It receives rainfall from both South-west monsoon and North-east monsoon.\n3. Maximum precipitation is between December and May.",["1 only","1 and 2","2 and 3","3 only"],1],
+[24,"Which of the following geographical features or phenomena is/are associated with the Peninsular Block of India?\n1. Submergence of parts of the western coast due to tectonic activity\n2. Presence of residual mountain ranges such as the Veliconda hills and Mahendragiri hills\n3. Deep, V-shaped river valleys formed by fast-flowing rivers",["1 only","1 and 2","2 and 3","3 only"],1],
+[25,"Consider the following statements with reference to the Sagarmala Programme of the Government of India:\nI. The Sagarmala Programme seeks to achieve port-led economic growth through cost-effective and sustainable coastal infrastructure.\nII. The success of the Sagarmala Programme is reflected in significant growth in coastal and inland waterway shipping, along with improved global port rankings.\nIII. Sagarmala 2.0 aims to position India as a global maritime innovation hub aligned with Atmanirbhar Bharat and Viksit Bharat 2047 visions.\nWhich of the following relationships among the above statements is/are correct?\n1. Statement II validates the effectiveness of the strategies envisioned in statement I.\n2. Statement III extends the objectives of statement I by embedding them into a future-oriented innovation framework.\n3. Statement I contradicts statement III by focusing only on traditional infrastructure instead of modern innovation.",["1 only","1 and 2","2 and 3","3 only"],1],
+[26,"Consider the following statements about Rhynchostylis retusa (Foxtail orchid):\n1. It is an epiphytic orchid.\n2. The species is endemic to North-east India.\n3. It is the State flower of Arunachal Pradesh and Assam.\nWhich of the statements given above is/are correct?",["1 only","1 and 3","2 and 3","3 only"],1],
+[27,"Which one of the following statements with regard to the Moidams, built by the Tai-Ahom kingdom and inscribed as a World Heritage Site by UNESCO, is/are correct?\n1. They acted as army fortresses.\n2. They were recreation centres of the Royals and Nobles.\n3. They were burial grounds of the Royals and Nobles.\n4. They were battle drill centres of Royals and Nobles.",["1 only","1 and 3","3 only","2 and 4"],2],
+[28,"At the United Nations Ocean Conference (UNOC) held in June, 2025 in France, the FAO demonstrated its leading voice on marine and ocean issues, especially on sustainable fisheries and aquaculture for resilient livelihood and 'Blue Transformation'. Which of the following combinations about the 'Four Betters' proposed by FAO for 'Blue Transformation' is correct?",["Better production, better nutrition, better environment and better ocean","Better production, better nutrition, better environment and better life","Better coral reefs, better nutrition, better environment and better life","Better estuaries, better nutrition, better environment and better mangrove vegetation"],1],
+[29,"Which of the following statements with reference to Lake Turkana is/are correct?\n1. It is the largest desert lake in the world.\n2. The lake is situated in South Sudan along the eastern fringe of the Sahara desert.\n3. The lake is listed as a UNESCO World Heritage Site and is also referred to as the 'Jade Sea'.",["1 only","1 and 3 only","2 and 3 only","1, 2 and 3"],1],
+[30,"Which one of the following is the first Plan Vivo certified Reducing Emissions from Deforestation and Forest Degradation (REDD+) project in India?",["Uttarakhand REDD+ project","ICFRE-ICIMOD Transboundary REDD+ project in North-Eastern Himalayas","Khasi Hills Community REDD+ project","Sikkim Mamley Kamrang Community REDD+ project"],0],
+[31,"Consider the following statements with reference to India's response to climate change:\nI. India's Long-Term Low Emission Development Strategy (LT-LEDS) is a crucial tool for achieving net-zero emissions by 2070.\nII. India's 4th Biennial Update Report (BUR-4) submitted in December, 2024 recorded around 8% decrease in Greenhouse gas emissions in 2020 over 2019.\nIII. Climate-resilient development necessarily depends on quick and short-term achievement of emission reduction targets.\nWhich of the following relationships among the above statements is/are correct?\n1. Statement I is empirically supported by statement II.\n2. Statement III contradicts the approach implicit in statement I.\n3. Statement I and statement III together establish the premise of long-term sustainability.",["1 only","1 and 2","2 and 3","3 only"],0],
+[32,"With respect to the Western Hoolock Gibbons, which of the following statements is/are correct?\n1. A Sanctuary in North-east India is home to this ape species listed as Endangered in the IUCN Red List.\n2. They have specialized brachiation and can easily swing between trees.\n3. They possess a strong and heavy build like gorillas, yet are remarkably agile tree climbers.",["1 only","1 and 2","2 and 3","3 only"],1],
+[33,"Which of the following best explain(s) the rationale for protecting mangrove ecosystems in the context of climate resilience?\n1. Mangroves reduce tidal energy and store freshwater, making them ideal sites for paddy cultivation in saline estuarine belts.\n2. Their salt-sensitive roots filter seawater, making mangroves key to converting coastal land into freshwater aquaculture zones.\n3. By withstanding tidal surges and offering biomass resources, mangroves function both as natural bio-shields and livelihood bases for rural communities.",["1 only","1 and 2","2 and 3","3 only"],3],
+[34,"In what way(s) does the Vizhinjam International Seaport represent a structural shift in India's maritime trade and logistics policy?\n1. By functioning exclusively as a domestic cargo hub to reduce reliance on coastal shipping and eliminate the need for foreign collaborations.\n2. By focusing primarily on passenger cruise tourism and heritage shipping to increase Kerala's profile as a maritime heritage destination.\n3. By leveraging its natural deep draft and strategic location to reduce dependence on foreign trans-shipment ports, enhance revenue retention, and reposition India in regional maritime trade.",["1 only","1 and 2","2 and 3","3 only"],3],
+[35,"Identify the river of the Indian sub-continent on the basis of the following information:\n1. It has an antecedent drainage system.\n2. It flows through three countries.\n3. It originates in the Tibetan Plateau and is an important river for irrigation.\n4. It does not form distributaries.",["Brahmaputra","Indus","Sutlej","Teesta"],0],
+[36,"Which of the following with reference to Indian States is/are not correct?\n1. Uttar Pradesh shares its boundary with the highest number of other Indian States.\n2. Rajasthan shares the longest international border among all Indian States.\n3. Sikkim is the only State that shares its boundary with just one other Indian State.",["1 only","1 and 2","2 and 3","3 only"],2],
+[37,"Which of the following statements with regard to the arrival of Amur Falcons at Doyang Lake in Nagaland each year from Mongolia is/are correct?\n1. It showcases how sustained local conservation efforts can contribute to the arrival and protection of international migratory birds.\n2. It reflects the global success of advanced tracking technologies that guide migratory birds back to their stopover sites.\n3. It confirms that Amur Falcons have adapted to permanent residency in India due to favourable habitat changes.",["1 only","1 and 2","2 and 3","3 only"],0],
+[38,"Which among the following is/are the objective(s) of the Rainfed Area Development (RAD) initiative under NMSA?\n1. Encouraging monoculture in rainfed areas\n2. Increasing rice cultivation in irrigated regions\n3. Enhancing productivity and minimising climatic risks through Integrated Farming Systems (IFS)",["1 only","1 and 2","2 and 3","3 only"],3],
+[39,"Which of the following is/are the most significant implication(s) of obtaining Oeko-Tex certification for Eri Silk in the global textile industry?\n1. It allows Indian exporters to compete in high-end markets that prioritise chemical-free products.\n2. It confirms that Eri Silk meets international safety, environmental, and quality standards, enabling its entry into premium eco-conscious markets.",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],2],
+[40,"Ships from which of the following countries have to cross the Strait of Hormuz to reach out to the Indian Ocean?\n1. Bahrain 2. Syria 3. Qatar 4. Egypt",["1 and 2","1 and 3","2 and 3","3 and 4"],1],
+[41,"Match List I with List II and select the answer using the code given below the Lists:\nList I (INTERPOL Notice) — List II (Description)\nA. Silver Notice  1. To seek information on unidentified bodies\nB. Blue Notice  2. To collect additional information about a person's identity, location, or activities in relation to a criminal investigation\nC. Black Notice  3. To provide warning about a person's criminal activities, where the person is a possible threat to public safety\nD. Green Notice  4. To identify and trace criminal assets",["A-3 B-1 C-2 D-4","A-3 B-2 C-1 D-4","A-4 B-2 C-1 D-3","A-4 B-1 C-2 D-3"],2],
+[42,"Which of the following statements in relation to NIRANTAR (National Institute for Research and Application of Natural Resources to Transform, Adapt and Build Resilience), a platform under the Ministry of Environment, Forest and Climate Change, is/are correct?\n1. Ecosystem Survey and Analysis is a vertical under this platform, lead institute Botanical Survey of India, Kolkata.\n2. Research and Management of Ecosystem Service is a vertical, lead institute Central Zoo Authority, New Delhi.\n3. Capacity Development Support is a vertical, lead institute Indian Institute of Forest Management, Bhopal.",["1, 2 and 3","1 and 3 only","2 only","3 only"],1],
+[43,"The Chancellor of the Federal Republic of Germany visited India in January, 2026. Which of the following is/are not correct in terms of outcomes of this visit?\n1. Signing of a MoU between the All India Institute of Ayurveda and the University of Hamburg\n2. Signing of a MoU on Youth Hockey Development between Hockey India and the German Hockey Federation\n3. Establishment of a bilateral dialogue mechanism on the Indo-Pacific\n4. Opening of an Honorary Consul of Germany in Lucknow",["2 and 3","1 and 4","3 and 4","1 only"],1],
+[44,"Which of the following statements about DHRUV64 is/are correct?\n1. It is the third chip fabricated under the DIR-V Programme, aiming to enable creation of microprocessors for India.\n2. It is India's first homegrown 1.0 GHz, 64-bit dual-core microprocessor.",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],2],
+[45,"The Bureau of Indian Standard (BIS) recently introduced a national standard to test and assess bomb disposal system. Which of the following statements is/are correct?\n1. The new standard is known as IS 19445 : 2025.\n2. It will improve interoperability of equipment across agencies.\n3. It was developed by TBRL, DRDO in collaboration with the 30th Central Scientific Research Institute, Russia.",["1, 2 and 3","2 and 3 only","1 and 2 only","1 only"],2],
+[46,"'X', born in the UK, was conferred the Nobel Prize in 2025. He was a professor in an American university when this prize was announced. Identify 'X':",["Michel H. Devoret","Richard Robson","John Clarke","Joel Mokyr"],2],
+[47,"Which of the following statements with regard to the Grand Slam Tennis Tournaments is/are correct?\n1. The tournaments have a shared governance structure establishing the partnership among the four Grand Slam tournaments.\n2. They are open for entry to all internationally ranked tennis players above the age of 14.\n3. There is a limitation on the number of 'Wild Cards' a player may receive to compete in a Grand Slam Tournament.",["1 and 2 only","2 and 3 only","1 only","1, 2 and 3"],2],
+[48,"Which one of the following pairs of semiconductor plants in India and their locations is not correctly matched?",["CG Power and Industrial Solutions Pvt. Ltd. (with Renesas & STARS Microelectronics) : Gujarat","Tata Semiconductor Assembly and Test Pvt. Ltd. : Assam","HCL-Foxconn Joint Venture India Chip Ltd. : Madhya Pradesh","SicSem Pvt. Ltd. : Odisha"],2],
+[49,"Which of the following statements with regard to India's indigenous new high resolution weather model, the 'Bharat Forecast System,' is/are correct?\n1. Its objective is to generate forecasts at the Panchayats cluster level.\n2. It was developed by IIT Delhi.",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],0],
+[50,"Consider the following statements with regard to the film 'Boong':\n1. The film has recently won the BAFTA Award in the Children's and Family Film category.\n2. The film is directed by Lakshmipriya Devi.\n3. This is the first Indian film to win a BAFTA award in the Children's and Family Film category.\nWhich of the statements given above is/are correct?",["1, 2 and 3","2 and 3 only","1 and 2 only","3 only"],0],
+[51,"Which of the following statements regarding the features of blockchain technology are correct?\n1. Records stored in the database may be made visible to relevant stakeholders without risk of alteration.\n2. Copies of the entire database are stored on multiple computers on a network, syncing within seconds.\n3. Consortium blockchain is a blend of public and private blockchains allowing selective data access.\n4. Mathematical algorithms make it impossible to change or delete any data once recorded and accepted.",["1 and 3","2 and 4 only","1, 2 and 4","1 and 4 only"],2],
+[52,"An e-commerce revenue model where the seller has control over pricing but doesn't keep products in stock and instead transfers customer orders and shipment details to a third-party supplier, who then ships the goods directly to the customer, is called:",["Dropshipping Model","Affiliate Revenue Model","Transaction Fee Revenue Model","Agency Revenue Model"],0],
+[53,"Which one of the following correctly represents the three key sub-indices of the Financial Inclusion Index (FI-Index) of the RBI?",["Credit access, Insurance depth, and Pension coverage","Banking access, GDP contribution, and Financial literacy","Access, Usage, and Quality","Access, Affordability, and Transparency"],2],
+[54,"Which one of the following best describes the key objective of India's 'Open Network for Digital Commerce' (ONDC) initiative?",["To allow government control over all digital commerce transactions","To replace private e-commerce players","To break the dominance of large e-commerce platforms by enabling interoperability across networks","To mandate UPI-based payments for all online transactions"],2],
+[55,"Which one of the following statements about UPI and Central Bank Digital Currency (Digital Rupee) is not correct?",["UPI is a real-time payment system but Digital Rupee is akin to sovereign paper currency.","In case of UPI, settlement at end users happens instantly but in case of Digital Rupee, there is no settlement as the wallet balance gets transferred to another wallet.","UPI transactions are recorded by banks and reflected in bank statements but in case of Digital Rupee, no data is captured in bank statements.","In both cases (UPI and Digital Rupee), the liability lies with the users and their respective banks."],3],
+[56,"Which of the following statements about Real-World Assets (RWA) Tokenization are correct?\n1. Tokenization is the process of turning real world assets into digital tokens using blockchain technology.\n2. Tokenization of real world assets offers 24×7 access, promoting financial inclusion.\n3. Tokenization of real world assets will allow access to high growth investment opportunities for individuals in India.",["1, 2 and 3","2 and 3 only","1 and 2 only","1 and 3 only"],0],
+[57,"A bond whose proceeds are used only to finance or refinance a combination of both environmental and social projects is called:",["Green Bond","Social Bond","Sustainability Bond","Sovereign Bond"],2],
+[58,"Which of the following statements about M1xchange's role in MSME financing is/are correct?\n1. M1xchange provides collateral based loans to MSMEs.\n2. M1xchange facilitates discounting of invoices and Bills of Exchange for MSMEs.\n3. M1xchange functions as a credit rating agency for MSMEs.",["1, 2 and 3","2 only","2 and 3 only","1 only"],1],
+[59,"Which one of the following best describes the 'Crowding Out Effect' in the context of fiscal policy?",["A situation where private investment increases due to increased Government spending","A situation where Government borrowing leads to higher interest rates, which reduces private investment","A situation where an increase in taxes leads to increased private sector investment","A situation where Government spending has no impact on aggregate demand"],1],
+[60,"Which of the following statements about Rare Earth Elements (REEs) and Critical Minerals is/are correct?\n1. Modern technological innovations including AI, robotics and space exploration extensively utilise REEs.\n2. China has the highest share in mining of REEs followed by India.\n3. The Government of India launched the National Critical Mineral Mission (NCMM) in 2025.\n4. Rare Earth Elements are a set of 13 metallic elements.",["1 and 3 only","3 only","1, 3 and 4","1, 2 and 4"],0],
+[61,"Which of the following statements about insurance in aviation sector is/are correct?\n1. 'Aviation Hull Insurance' covers the physical aircraft, including the body, engine, and on-board equipment.\n2. Under the Montreal Convention (1999, over 130 countries incl. India), airlines are strictly liable to pay compensation to the family/nominee of every deceased passenger without requiring proof of fault.",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],2],
+[62,"Which of the following statements about Crowdfunding is/are correct?\n1. Crowdfunding is solicitation of funds (small amount) from multiple investors through a web-based platform or social networking site for a specific project.\n2. SMEs are able to raise funds at lower cost of capital without undergoing rigorous procedures.",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],2],
+[63,"With reference to different Committees in India, consider the following details:\n1. R.N. Malhotra Committee — Comprehensive reforms of Insurance sector — IRDAI\n2. L.C. Gupta Committee — Roadmap for derivatives trading — SEBI\n3. Urjit R. Patel Committee — Roadmap for reforming bank lending to Housing sector — RBI\n4. Y.H. Malegam Committee — Roadmap for reforms in Microfinance sector — RBI\nIn which of the above rows are all the details correctly matched?",["2 only","2 and 3","1, 3 and 4","2 and 4"],3],
+[64,"Consider the following statements about Multidimensional Poverty Index (MPI):\n1. MPI is calculated using Alkire-Foster methodology.\n2. MPI calculated by NITI Aayog has a total of twelve indicators.\n3. Maternal Health and Bank Account are common indicators in the MPI of NITI Aayog and MPI of UNDP.\nWhich of the statements given above is/are correct?",["1 and 2 only","1, 2 and 3","1 and 3 only","2 only"],0],
+[65,"Which of the following statements with regard to genetic medicine is/are correct?\n1. Genetic medicines correct/compensate for the faulty genes responsible for disease.\n2. Engineered viruses and lipid nanoparticles are used as carriers of the genetic medicine.\n3. Genetic medicines alter the entire DNA sequence.",["1 only","2 and 3 only","1 and 2 only","1, 2 and 3"],0],
+[66,"Which of the following statements with regard to Large Language Models (LLMs) used in machine learning is/are correct?\n1. LLMs assign probabilities to the next possible words and then pick the one with the highest probability.\n2. LLMs process data through mathematical optimization to minimise prediction errors.\n3. LLMs produce unbiased outputs.",["1 only","1 and 2 only","2 and 3 only","1, 2 and 3"],1],
+[67,"Which of the following statements with regard to stealth technology is/are correct?\n1. Stealth objects have a very small radar cross-section and are coated with Radar Absorbing Material.\n2. Stealth objects can be detected using specific frequencies.\n3. Stealth objects are coated with metamaterials to increase the scattering of electromagnetic radiation.",["1 only","2 and 3 only","1 and 2 only","1, 2 and 3"],2],
+[68,"Which of the following statements with regard to Black Boxes used in modern aircrafts is/are correct?\n1. They carry a beacon emitting red light pulses to facilitate underwater detection.\n2. They record both the cockpit voice and flight data.\n3. Their memory units are made using either stainless steel or titanium.",["1 only","2 and 3 only","1 and 2 only","1, 2 and 3"],2],
+[69,"Which of the following statements with regard to Green Hydrogen is/are correct?\n1. It is decarbonized hydrogen obtained from natural gas reforming combined with CCS.\n2. It is produced using electrolysis of water with electricity generated by renewable energy.\n3. National Green Hydrogen Mission of India aims for abatement of nearly 50 MMT of annual GHG emissions by 2030.",["1 only","2 and 3 only","2 only","1, 2 and 3"],1],
+[70,"Which of the following statements with regard to drone swarms is/are correct?\n1. They use Terahertz band of frequency to communicate with the command centre.\n2. Individual drones in the swarm can communicate with other drones in the swarm.\n3. GPS Spoofing is a commonly used technique to counter drone swarm attack.",["1 only","2 and 3 only","1 and 2 only","1, 2 and 3"],1],
+[71,"Consider the following statements with regard to involvement of private entities in India's space programme:\n1. IN-SPACe is an autonomous agency formed to facilitate participation of private entities.\n2. Agnikul Cosmos launched the world's first flight using 3D-printed rocket engine.\n3. Skyroot Aerospace has developed liquid fuel for GSLV.\nWhich of the statements given above is/are correct?",["1 only","2 and 3 only","1 and 2 only","1, 2 and 3"],2],
+[72,"Which of the following statements with regard to GenomeIndia Project is/are correct?\n1. It is a part of the Human Genome Project.\n2. The project is funded by the Department of Biotechnology (DBT), Government of India.\n3. Its primary aim is to build a catalogue of genetic diversity of the Indian population.",["1 only","2 and 3 only","1 and 2 only","1, 2 and 3"],1],
+[73,"Which of the following statements with regard to the National Quantum Mission (NQM) is/are correct?\n1. It aims at developing intermediate-scale quantum computers with 50–1000 physical qubits.\n2. Its implementation includes setting up of four Thematic Hubs (T-Hubs) in academic and national R&D institutes across India.",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],1],
+[74,"Which of the following statements with regard to India's Deep Ocean Mission is/are correct?\n1. It was launched by the Ministry of Ports, Shipping and Waterways, Government of India.\n2. Matsya-6000 has been designed to carry 3 people for deep sea exploration.\n3. Samudrayaan is a project under this mission.",["1 only","2 and 3 only","1 and 2 only","1, 2 and 3"],1],
+[75,"Mr. X, a senior officer, was overseeing a critical vaccination programme during a pandemic. He found that a private service provider was compromising on quality to make profits. Despite pressure due to vested interests, he raised his voice based on principles of public administration, reported the issue to the appropriate vigilance authority, and halted the contract to ensure citizen welfare. Which one among the following principles of public administration was most strongly demonstrated by Mr. X's actions?",["Esprit de corps","Equity","Accountability","Delegation"],2],
+[76,"In a multi-ethnic district where both economic competition and historical grievances frequently led to community tensions, a flashpoint arose over a Government decision to allocate land for a waste management facility near a tribal hamlet. Which of the statements given below would contribute to the resolution process?\n1. A successful conflict resolution process must begin with acknowledging the cultural concerns of the protesting tribal community before discussing technical alternatives.\n2. The Government should move ahead with the project without delay to address urban health concerns, which outweigh the sentiments of a small group.\n3. Creating a multi-stakeholder dialogue platform to build mutual understanding and help de-escalate tensions.\n4. Conducting an independent Environmental and Social Impact Assessment (ESIA) and sharing findings transparently.",["1, 3 and 4 only","2, 3 and 4 only","1 and 2 only","1, 2, 3 and 4"],2],
+[77,"Ms. X is a mid-level civil service official working in the urban development department. During approval of a public infrastructure contract, she received confidential information that a shortlisted contractor had a history of poor workmanship and unproven corruption allegations. The Head of Department advised her not to disclose this, but Ms. X believed withholding it compromised transparency and public trust. What amongst the following should Ms. X do now?\n1. Immediately disclose the information to the project committee and the public\n2. Recommend removing the contractor from the shortlist to protect the project's integrity\n3. Propose a 'limited disclosure' to an oversight committee, while keeping the information confidential from the public for the time being",["1 and 2 only","3 only","2 and 3 only","1, 2 and 3"],1],
+[78,"'X' was addressing a seminar on the meaning of the term 'law' as provided under Article 13, Part III of the Constitution of India. 'X' explained the meaning was very comprehensive, including ordinances, orders, rules and regulations. 'Y' pointed out that the term 'law' in Article 13 also included custom or usage having the force of law, to which 'X' was not convinced. Based on the above, select the correct conclusion from the options given below:",["'X' is correct in the interpretation of law, including the view on non-inclusion of custom.","The view of 'Y' that 'law' included custom is not correct.","The views of both 'X' and 'Y' are correct.","The view of only 'Y' is correct."],3],
+[79,"Consider the following statements with reference to the Constitution of India:\n1. There is no Article that specifies that the Constitution of India will be officially called the 'Constitution of India'.\n2. There is no Article that specifies that the Indian Independence Act, 1947 and the Government of India Act, 1935 stand repealed.\n3. There is no Article that mentions 26th January, 1950 as the date of the commencement of the Constitution of India.\nWhich one of the following conclusions is correct?",["All three statements are correct.","There is no correct statement.","There are two correct statements that include statement 3.","There is only one correct statement."],3],
+[80,"Consider the following statements with reference to the Constitution of India — regarding whether it is officially named, whether it repeals prior Acts, and whether it mentions its commencement date:",["All three statements are correct.","There is no correct statement.","There are two correct statements that include statement 3.","There is only one correct statement."],1],
+[81,"Consider the following statements about the provisions pertaining to the Scheduled Castes and the Scheduled Tribes in India:\n1. Provisions regarding the administration of the Tribal Areas in Assam, Meghalaya, Tripura and Mizoram are given in the Fifth Schedule of the Constitution.\n2. Some tribes of India are entitled to exemption from paying Income Tax on certain incomes.\n3. The Constitution of India provides for reservation of seats in Panchayats for women belonging to the SCs and STs.\nWhich one of the following conclusions is correct?",["There are two correct statements, that include statement 2.","There are two correct statements, that are statements 1 and 3.","There is only one correct statement.","All three statements are correct."],2],
+[82,"Consider the following statements in respect of questions asked by Members in the Parliament of India:\n1. Unstarred questions are those to which a Member desires an oral answer in the House.\n2. Starred questions are those to which a Member desires a written answer.\n3. No supplementary question can be asked on an unstarred question.\nWhich one of the following conclusions is correct?",["All three statements are correct.","There are two correct statements, that include statement 2.","There is only one correct statement.","There is no correct statement."],0],
+[83,"Which of the following statements with regard to persons with disabilities in India is/are correct?\n1. The Rights of Persons with Disabilities Act, 2018, mandates reservation in education and employment, places a legal duty on Governments for accessibility and non-discrimination.\n2. The Sugamya Bharat Abhiyan focuses on universal accessibility across built infrastructure, transport systems, and ICT.\n3. The National Divyangjan Finance and Development Corporation (NDFDC) was set up by the Ministry of Corporate Affairs as a not-for-profit company.",["1 and 2","2 only","1 and 3","1 only"],0],
+[84,"Consider the following statements about the Committee on the Welfare of Scheduled Castes and Scheduled Tribes of the Parliament of India:\n1. Although members are elected from both Houses, the Chairperson is appointed by the Chairman of the Rajya Sabha.\n2. Twenty members are elected by the Rajya Sabha and ten members by the Lok Sabha.\n3. No Minister, except the Union Minister of Social Justice and Empowerment, is eligible to be a member.\n4. Members are elected for a fixed term of two years from the date they enter their office.\nWhich one of the following conclusions is correct?",["There are four correct statements.","There is only one correct statement, that is statement 2.","There are two correct statements, that include statement 1.","There is no correct statement."],3],
+[85,"Consider the following statements about river bridges connecting India with neighbouring countries:\n1. 'Maitri Setu', built over Feni river, connects Ramgarh in India with Sabroom in Bangladesh.\n2. Jhulaghat suspension bridge connects India with Myanmar.\n3. Mechi bridge and its approaches connect Panitanki Bypass in India with Kakarvitta in Nepal.",["1 and 2","2 and 3","1 only","3 only"],0],
+[86,"Consider the following statements about Mission Sudarshan Chakra of India:\n1. It aims to enhance India's air defence, ballistic missile defence and aerial offensive capabilities.\n2. It is being designed to enhance rapid, precise, and powerful defence responses, reinforcing India's strategic autonomy.\n3. One of the aims of this Mission is to cover all public places of India by an expanded nationwide security shield by 2035.",["1, 2 and 3","1 and 2 only","2 and 3 only","1 only"],3],
+[87,"With reference to the organisations under the Government of India, consider the following details:\n1. Central Economic Intelligence Bureau (CEIB) — Coordinate between law enforcement agencies — Ministry of Home Affairs\n2. Serious Fraud Investigation Office (SFIO) — Investigate complex corporate frauds — Ministry of Finance\n3. Central Bureau of Investigation (CBI) — Preserve values in public life and national economy's health — Ministry of Personnel, Public Grievances and Pension\nIn how many of the above rows are the given details correctly matched?",["1","2","3","None"],3],
+[88,"Which of the following statements about a Zero First Information Report (Zero FIR) under the BNSS, 2023 is/are correct?\n1. A Zero FIR can be lodged at a police station even though the place of commission of the offence is outside that police station's territorial jurisdiction.\n2. The Officer-in-Charge where a Zero FIR is lodged may, with permission of the competent authority, initiate a preliminary enquiry.\n3. Under Zero FIR, it is obligatory for the informant to furnish information electronically.",["1, 2 and 3","2 and 3 only","1 only","2 only"],3],
+[89,"Which of the following connectivity projects is/are a part of cooperation between India and the ASEAN member countries?\n1. Kaladan Multi-Modal Transit Transport Project\n2. IMT Trilateral Highway\n3. Agartala-Akhaura Rail Line",["1 and 2","2 and 3","1 and 3","2 only"],0],
+[90,"Consider the following statements with respect to the AI Impact Summit, 2026 held in New Delhi:\n1. The Summit's intellectual framework was based on three foundational Sutras: People, Planning, and Progress.\n2. The Preamble of the Summit stresses Democratising AI Resources, acknowledging the Charter for Democratic Diffusion of AI.\n3. The New Delhi Declaration on AI Impact was structured around seven Chakras (Pillars).\nWhich of the statements given above is/are correct?",["1, 2 and 3","1 and 2 only","2 and 3 only","3 only"],3],
+[91,"Match List I with List II and select the answer using the code given below the Lists:\nList I (Project Supported by India) — List II (Country)\nA. Mangdechhu Hydroelectric Project\nB. Restoration of Stor Palace\nC. District Hospital at Dickoya\nD. Institute of Security and Law Enforcement Studies\n1. Maldives  2. Afghanistan  3. Bhutan  4. Sri Lanka",["A-1 B-4 C-2 D-3","A-3 B-2 C-4 D-1","A-3 B-4 C-2 D-1","A-1 B-2 C-4 D-3"],1],
+[92,"Which of the following items of defence hardware is/are manufactured in India?\n1. Su-30 MKI Fighter Jets\n2. T-90 MK-III Tanks\n3. Akula Class Submarine",["1 and 2","1 and 3","1 only","2 only"],0],
+[93,"Consider the following statements about platforms for multilateral co-operation:\n1. The 'Colombo Process' is a regional consultative process in which member states take binding decisions by consensus.\n2. The 'Abu Dhabi Dialogue' is a voluntary non-binding consultative process among Asian countries of labour origin and destination.\n3. The 'Global Forum for Migration and Development' is a voluntary forum whose decisions are non-binding in nature.",["1, 2 and 3","1 and 3 only","2 and 3 only","2 only"],2],
+[94,"Consider the following UN organisations/agencies:\n1. World Food Programme\n2. United Nations Children's Fund\n3. United Nations High Commissioner for Refugees\n4. International Labour Organisation\nHow many of the above has/have been awarded the Nobel Prize twice?",["1","2","3","4"],0],
+[95,"Match List I with List II and select the answer using the code given below the Lists:\nList I (UN Peacekeeping Operation) — List II (Period of Operation)\nA. UNMIL  1. 2007–2010\nB. MINURCAT  2. 2002–2005\nC. MINUSTAH  3. 2003–2018\nD. UNMISET  4. 2004–2017",["A-3 B-4 C-1 D-2","A-3 B-1 C-4 D-2","A-2 B-1 C-4 D-3","A-2 B-4 C-1 D-3"],1],
+[96,"Match List I with List II and select the answer using the code given below the Lists:\nList I (BIMSTEC Centre/Establishment) — List II (Location)\nA. BIMSTEC Cultural Industries Observatory\nB. BIMSTEC Energy Centre\nC. BIMSTEC Centre for Weather and Climate\nD. BIMSTEC Technology Transfer Facility\n1. NOIDA  2. Bengaluru  3. Colombo  4. Thimphu",["A-3 B-2 C-1 D-4","A-3 B-1 C-2 D-4","A-4 B-2 C-1 D-3","A-4 B-1 C-2 D-3"],2],
+[97,"Which one of the following pairs is not correctly matched?\n(Indian Army Corps) — (Headquarters)",["3 Corps : Dimapur","4 Corps : Tezpur","14 Corps : Leh","33 Corps : Srinagar"],3],
+[98,"Which of the following statements with respect to the Revamped Rashtriya Gram Swaraj Abhiyan (RGSA) is/are correct?\n1. The period of its implementation is 1st April, 2021 to 31st March, 2026.\n2. The key objective is to develop the governance capabilities of Panchayati Raj Institutions to deliver on the SDGs.\n3. The share of the Central funding for the Revamped RGSA is 100% for all States and Union Territories.",["1 and 2","2 only","1 and 3","2 and 3"],1],
+[99,"Which of the following countries are members of the European Union?\n1. Belarus 2. Poland 3. Germany 4. Switzerland",["1, 2 and 4","1 and 4 only","2 and 3","2 and 4 only"],2]
+];
+
+// Paper II - General Studies Paper II / CSAT (Official Answer Key: Series D)
+const PAPER2 = [
+[1,"For 1/3 < x < y < 2, which of the following statements is/are always correct?\nI. x + 1/x < y + 1/y\nII. √(1+y²)/y < √(1+x²)/x",["I only","II only","Both I and II","Neither I nor II"],2],
+[2,"What is the minimum number of times one needs to measure to get 298 litres of water from a tank, if the measuring cylinders have capacities 1, 6, 25 and 100 litres?",["4","5","9","13"],1],
+[3,"There are four types of weights: 1 kg, 2 kg, 5 kg and 10 kg. What is the maximum number of different ways one can measure 20 kg, if at least eight but not more than eleven weights of 1 kg are to be used?",["7","8","9","10"],1],
+[4,"A cut on a solid object divides it into two parts with plane new surfaces. One single cut can also cut more than one object at a time. In an experiment, the total pieces produced by n cuts is xₙ, performed on a solid cube where pieces remain unmoved after each cut. If after the third cut the pieces are identical, which of the following is NOT a possible value for x₄?",["16","12","8","5"],0],
+[5,"The class average x in a test increases by 4 when a student's score is rectified to 100 instead of 0. Later, another student's score was found recorded as 81 instead of 56. If there are no other corrections and the final corrected average is y, then y − x is",["2","3","5","6"],1],
+[6,"[Passage: SARS-CoV-2 vs HMPV] Which of the following conclusions is/are valid?\n1. Though SARS-CoV-2 and HMPV are similar viruses with somewhat different epidemiology, the former became a pandemic because it was novel and people had not been exposed to it in the past.\n2. The two viruses have fundamentally different impacts on human populations and should not therefore be dealt with in a similar manner.",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],1],
+[7,"Which of the following reflect the intent of the writer in the above passage?\n1. To evolve methodologies for objective analysis of the two viruses\n2. To establish the epidemiological similarities and differences between the two viruses\n3. To offer a better understanding of the remedies of HMPV when analysed in conjunction with SARS-CoV-2",["1 and 2","2 and 3","1 and 3","None of the above"],3],
+[8,"Which of the following statements reflect the logical and rational inferences that can be drawn from the passage?\n1. HMPV has, historically, had longer documentation of studies when compared with SARS-CoV-2.\n2. The two viruses are different from each other and this results in markedly different outcomes amongst those affected.\n3. Long-term impacts of the two viruses are dissimilar and this is an important differentiator between them.\n4. One of the common factors between the two viruses is seasonal specificity.",["1 and 2 only","1, 2 and 3","3 and 4","1 and 3 only"],1],
+[9,"Three variables x, y and z take values 2, 3, 4 or 5 such that their values are always distinct. If M and N denote the largest and smallest possible values, respectively, for {(x × y) + z}, then M − N is",["11","12","13","14"],2],
+[10,"Suppose x, y and z are variables taking positive real numbers. y is directly proportional to x² and x is inversely proportional to z. For z = 7/25, x and y are 5 and 50 respectively. If y = 98, what is z equal to?",["1/7","1/5","5/7","1"],1],
+[11,"[Passage: AI in Indian agriculture] Which of the following presumption/presumptions is/are valid?\n1. Agricultural productivity has marched ahead in the West because of economies of scale facilitated by AI adoption.\n2. Affordable AI tools rendered available in local languages can help AI-based solutions reach more small farmers.\n3. Though penetration is as yet low, critical application areas deploying AI tools are already in use in India.",["1, 2 and 3","2 only","1 and 3 only","2 and 3 only"],3],
+[12,"Which of the following statements is/are NOT correct?\n1. Tech-savvy farmers will drive the AgTech companies of the future.\n2. Development of advisory services by government programmes for AI tools in agriculture would be helpful.\n3. In the US and Europe, AI tools have replaced traditional agricultural practices.\n4. The integration of large datasets for real-time agronomic analysis is already a reality.",["1 and 3 only","1, 3 and 4","2 and 4","3 only"],0],
+[13,"P, Q, R, S and T are ranked 1 to 5 (not necessarily in that order). Rank of P is 4, rank of Q is not 5, rank of R is 1, rank of S is not 2, rank of T is not 3. Which of the following is/are correct?\nI. If the rank of S is 3, then that of T is 2.\nII. If the rank of Q is 3, then that of T is 5.",["I only","II only","Both I and II","Neither I nor II"],3],
+[14,"Two identical straight rods are painted in five distinct colours dividing each into five equal parts. In one, portions are marked P1–P5 (order not fixed); in the other, Q1–Q5 (order not fixed). Kept side by side, P1 & Q3 match; P4 matches Q1 or Q2; Q4 matches P3 or P5. If Q3 and Q5 are adjacent, which is/are possible?\nI. Q3 is marked at the middle portion.\nII. P2 is marked at one of the extreme portions.",["I only","II only","Both I and II","Neither I nor II"],2],
+[15,"Seven persons A, B, C, D, E, F and G travel by three cars X, Y, Z. A and two others travel by X. Only E travels with G. C travels by Z, but B does not travel by Y. A and B do not travel by the same car. Which of the following are correct?\nI. No one travels alone.\nII. Only D travels with F.\nIII. Only C travels with B.",["I and II only","I and III only","II and III only","All the three"],3],
+[16,"There are four statements X, Y, Z and W. If X is incorrect, then so is Z; if Y is incorrect, then W is correct; if W is correct, then X is incorrect. Which of the following is/are correct?\nI. If X is correct, then so is Y.\nII. If Z is correct, then it is not necessary that Y is correct.",["I only","II only","Both I and II","Neither I nor II"],0],
+[17,"X and Y run on the same circular track, starting together, same direction, uniform speed. When X completed 7 rounds, Y completed exactly 5. After 5 rounds, Y reversed direction at double the speed; X continued unchanged. They stopped when X completed exactly 21 rounds. How many times did X and Y meet after starting and before stopping?",["35","34","31","29"],0],
+[18,"In an objective paper, 5 marks for correct, 2 deducted for wrong. A student attempted all and scored 69. Had it been 4 for correct and 1 deducted for wrong, he'd have scored 84. How many questions were in the paper?",["99","81","84","79"],1],
+[19,"[Passage: JJ Act] Which of the following conclusions is/are valid?\n1. Only a serious offence as categorised by the revised JJ Act justifies the transfer of a case to the adult judicial system.\n2. The JJ Act, 2021, categorises an offence as serious based on the maximum sentence it carries, rather than the minimum sentence.",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],1],
+[20,"Which of the following statements is/are correct?\n1. If an offence has no minimum prescribed punishment, it cannot be considered heinous as per the JJ Act, 2015.\n2. As per the JJ Act, 2021, an offence with a maximum sentence of seven years or more but no minimum sentence, is to be considered a serious offence.",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],2],
+[21,"An explosion occurs at a distance from an army camp. As soon as the sensor receives the sound, a drone flies to the spot, clicks a picture, and the camp receives it instantly. Immediately another drone flies and also sends a picture on arrival. The two pictures were received at 5:02 PM and 5:05 PM. If drone speed is 30 m/s and sound speed is 300 m/s, at what time did the explosion occur?",["4:59:00 PM","4:59:02 PM","4:58:42 PM","4:56:32 PM"],2],
+[22,"The digit in the unit place of 6¹²⁹ × 7³⁰⁷ is",["2","4","8","6"],2],
+[23,"A person saves 10% of his salary every month. If his salary increases by 12% and expenditure by 10%, what is the change in his monthly saving?",["20% increase","30% increase","03% decrease","02% decrease"],1],
+[24,"P has a son and a daughter. S is the mother of T. S is R's spouse. Q and R are children of P. How is Q related to S?",["Q is a sister of S","Q is a daughter of S","Q is the mother of S","Q is a sister of the husband of S"],3],
+[25,"How many three-digit numbers can be expressed as an integral power of 2?",["1","2","3","4"],2],
+[26,"[Passage: clean air, coal ban, CNG transition] Which of the following inferences is/are correct?\n1. The source of the energy we consume is the key to the battle for cleaner air.\n2. Bans are effective where the will is strong and the people are convinced such bans are for the greater good of society.\n3. There is judicial approval for a policy that intervenes fiscally to facilitate benevolent pricing for cleaner fuel.",["1 and 2","2 and 3","1 and 3","1 only"],1],
+[27,"Which of the following statements is/are correct?\n1. Thermal power stations in Delhi were required to summarily shut down.\n2. CNG supplies had to be assured once diesel vehicles were prohibited from plying.\n3. The Supreme Court banned the use of coal across the National Capital Region.",["1 and 2","3 only","2 only","2 and 3"],2],
+[28,"Every red is blue. Every blue is green. Every green is yellow. Which of the following statements P, Q and R are correct?\nP. Every blue is yellow.\nQ. Every red is green.\nR. Every red is yellow.",["P and Q only","Q and R only","P and R only","P, Q and R"],3],
+[29,"How many times does 5 appear in all two-digit positive integers?",["18","19","20","21"],1],
+[30,"X travels 6 km on a bicycle: 5, 10, 4 km/h average speeds for first 1 km, next 2 km, remaining 3 km respectively. Y travels the same distances at 4, 10, 5 km/h respectively. How many minutes early will Y complete the journey, starting together?",["3","4","5","6"],3],
+[31,"Seven cubes are identical in shape; six have equal weight and one is lighter. A balance is used to identify the lightest. What is the minimum number of attempts required with certainty?",["2","3","4","1"],0],
+[32,"[Passage: AI in customer service] Which statement most appropriately reflects the passage's point of view?",["If AI were to take over customer service, there would be no work left for humans.","Irritating voice menus and email could not achieve human redundancy to the extent AI might.","The value of human intervention affected by AI might be enhanced through redirection towards more fulfilling tasks.","Unlike previous waves in customer-service technology, AI has raised the alarm of worker replacement."],2],
+[33,"Which of the following conclusions, made on the basis of the passage, is/are correct?\n1. The advent of new customer-service technology had invariably sparked fears about job losses.\n2. Often, instead of job losses, alternative channels for employee engagement are discovered while certain tasks are replaced by technology.\n3. The advent of technology inevitably leads to stressful outcomes.",["1 and 3","2 only","3 only","1 and 2"],3],
+[34,"[Passage: Rai Sahib, landlord and grazing land] Which of the following conclusions is/are correct?\n1. All landlords essentially have some goodness trapped within them.\n2. The common grazing grounds of a village are intended for use by the cattle of that village.\n3. Landlords who believe in tradition tend to be more concerned about their tenants.\n4. Winds later in the day tend to be cooler post the hot winds of the morning.",["1 and 3","2 and 4","3 only","2 only"],2],
+[35,"Which of the following statements are NOT correct?\n1. The landholdings of Rai Sahib were currently not being used for farming.\n2. Temperamentally, Rai Sahib was as greedy as other landlords.\n3. It cannot be ascertained that Rai Sahib could have made money leasing out the grazing land.\n4. It may be asserted that Rai Sahib valued his tenants and wanted to protect their livelihood.",["1 and 2 only","1 and 3 only","3 and 4","1, 2 and 3"],3],
+[36,"A person facing East travels 4 km straight, turns right and travels 3 km, turns left and travels 2 km, and finally turns left and travels 3 km. The minimum distance from start, and the final facing direction, are respectively",["12 km, East","6 km, East","8 km, North","6 km, North"],3],
+[37,"In a sequence, each number (other than the first two) is the sum of the two immediately preceding numbers. If the first two numbers are 4 and 7, what is the sixth number?",["29","37","43","47"],3],
+[38,"The ratio of male to female workers in companies A and B is 13:10 and 7:5 respectively. If both companies have the same number of female workers, what is the ratio of total workers in A to those in B?",["24:23","23:24","18:17","27:18"],1],
+[39,"If the product of HCF and LCM of two distinct numbers is the cube of one of the numbers, which statement(s) is/are correct?\nI. The difference of the numbers is even.\nII. One of the numbers is a perfect square.",["I only","II only","Both I and II","Neither I nor II"],2],
+[40,"If x and y are digits and the number 4x5y790 is divisible by 11, what is the remainder when x+y is divided by 11?",["1","3","5","7"],3],
+[41,"[Passage: Wimbledon, Hugh Grant] Which of the following statements is/are correct?\n1. Radical action can also be attributed to mild surrender where one acts against societal expectations.\n2. Submitting to one's limitations, given age and other factors, ought not to be conflated with laziness.\n3. (as per passage context)",["1 and 2 only","2 and 3 only","1, 2 and 3","3 only"],2],
+[42,"Which of the following statements is/are correct?\n1. Hugh Grant was watching, from the Royal Box, the men's semifinal match on Centre Court between Flavio Cobolli and Novak Djokovic.\n2. The phrase 'unexpected ace' uses a tennis term to highlight Hugh Grant's uncharacteristic act of catching 'forty winks' — viewed with opprobrium.\n3. Grant subjects the demands of society to the wisdom of his body.",["1 and 2","3 only","2 and 3","2 only"],1],
+[43,"[Passage: Convergence theory of economic eras] Which of the following conclusions are correct?\n1. In the breakaway phase, economic progress is slow for technology followers.\n2. In the catch-up phase, leaders stagnate and followers close the gap.\n3. In the fine-tuning phase, technology is exhausted and both leaders and followers extract leftover benefits, converging incomes.\n4. Industrial technology followed scavenging, which preceded hunting, followed by farming.",["3 and 4 only","1, 2, 3 and 4","1 and 2 only","2, 3 and 4 only"],0],
+[44,"Which of the following statements is/are correct?\n1. The convergence model divides nations into three phases of economic progress.\n2. At the heart of convergence theory is the closing of the gap between labour and productivity.\n3. Technology leaders typically have arrived earlier at different economic eras.\n4. The time period covered by the convergence theory presented herein encompasses 4,012,200 years.",["2 and 4","2 and 3","3 only","1, 3 and 4"],1],
+[45,"Alloy P contains 20% copper and 80% zinc by weight. Alloy Q contains 60% copper and 40% zinc. A third alloy R is to be prepared from P and Q so it contains equal amounts of copper and zinc. In what ratio should P and Q be mixed to get R?",["1 : 3","3 : 1","2 : 3","3 : 2"],0],
+[46,"A is a 2-digit number with different digits. B is a 2-digit number obtained by reversing A's digits. If A − B is a multiple of 27, where A > B, how many different A's are possible?",["6","9","12","18"],1],
+[47,"If ZERO is encoded as ADSN, how would you encode STOP?",["SPOT","TSPO","TSOP","POST"],1],
+[48,"There are three types of rectangular tiles: 3'×3', 3'×7' and 3'×11'. An area 3'×100' is to be covered using these tiles without breaking them. If x and y are the maximum and minimum numbers of tiles (of various sizes) that can be used to cover the area exactly, what is x − y?",["20","12","10","7"],0],
+[49,"A train has to complete a journey of 800 km. On a minor accident, speed halves; on a mechanical defect, speed becomes one-fourth. The train meets a minor accident after 200 km, and a mechanical defect 400 km thereafter. Had the defect occurred after 200 km and the accident 400 km thereafter, it would have taken 4 more hours to reach its destination. What was the train's original speed (km/h)?",["200","190","150","100"],0],
+[50,"In a recruitment process, candidates are selected based on performance in three components weighted 0.2, 0.3, and 0.5. Using the given data, find the cutoff score if exactly three candidates are to be selected.",["5.1","5.2","5.3","5.4"],0],
+[51,"Consider three statements S1, S2 and S3 about climate change and environmental activism. Which of the following relationships is/are correct?\n1. S3 is a counterpoint to S1\n2. S3 is unconnected to S1 and S2\n3. S2 could be the reason for S3",["2 and 3 only","1, 2 and 3","1 and 2 only","3 only"],3],
+[52,"Match List I (Relationship category) with List II (Communication type):\nA. Cricket captain and team members\nB. Judge and lawyers in court\nC. Vice Chancellor and Deputy Registrar\nD. Peers and coworkers\n1. Informal and firm  2. Informal and open-ended  3. Formal and open-ended  4. Formal and firm",["A-1 B-3 C-4 D-2","A-1 B-4 C-3 D-2","A-2 B-4 C-3 D-1","A-2 B-3 C-4 D-1"],1],
+[53,"Match List I (Tool of communication) with List II (Purpose):\nA. Memorandum  B. Flyer  C. Bcc  D. Minutes\n1. To record decisions  2. To inform confidentially  3. To intimate a directive  4. To disseminate non-targeted information",["A-1 B-4 C-2 D-3","A-1 B-2 C-4 D-3","A-3 B-4 C-2 D-1","A-3 B-2 C-4 D-1"],2],
+[54,"Which among the following actions would constitute the most appropriate directive(s) in resolving interpersonal conflict in a culturally diverse office?\n1. Direct personnel to do activities that are cultural markers of diverse groups\n2. Allow conflicts to resolve naturally over time\n3. Encourage personnel to seek out each other's perspectives",["1 and 3","2 only","3 only","2 and 3"],2],
+[55,"Match List I (Barrier to communication) with List II (Example):\nA. Semantic  B. Cognitive  C. Organisational  D. Affective\n1. Lack of feedback  2. Misunderstanding the meaning of a word  3. Fear of social stigma  4. Information overload",["A-3 B-1 C-4 D-2","A-3 B-4 C-1 D-2","A-2 B-1 C-4 D-3","A-2 B-4 C-1 D-3"],3],
+[56,"You are designing a questionnaire for visitors to determine the feasibility of setting up a family-oriented vacation resort near a lake destination in the mountains. Which heads would you include?\n1. Size of family  2. Budget  3. Number of earners in the family  4. Food allergies and dietary restrictions",["1 and 3","1, 2 and 4","1 and 2 only","2 and 3"],1],
+[57,"With reference to 'circular letters', which of the following statements is/are correct?\n1. Circular letters are usually addressed to a group of people.\n2. Non-standard and customized content is typical of circular letters.\n3. Circular letters are used to intimate appraisals and increments of employees within organisations.\n4. Circular letters are less cost-effective than personalized, specific recipient-directed letters.",["1 and 2","2 and 4","1, 3 and 4","Only 1"],3],
+[58,"Three partners A, B and C entered a business. A invested one-third of the capital for one-third duration. B invested one-fourth of the capital for one-fourth duration. C invested the remaining capital for the whole duration. Out of a profit of ₹17,000, how much will C get?",["₹12,000","₹10,000","₹12,500","₹10,750"],0],
+[59,"Two chemicals A and B do not react. A container has 10 litres of A. One litre is removed and one litre of B is poured in. Then one litre of the mixture is removed and one litre of B poured. If this replacement (1 litre of mixture by 1 litre of B) is performed once more, what percentage of B is in the container approximately?",["25","27","29","31"],1],
+[60,"A shopkeeper employs a delivery boy with a motorcycle. He gets ₹5 per delivery plus ₹2 per km travelled in the day. He wants to earn more than ₹500 a day but not travel more than 100 km. Which number of deliveries would definitely meet his target?",["80","85","90","The question cannot be answered due to insufficient data"],3],
+[61,"[Data Sufficiency] X receives three coins of different denominations from {1, 2, 5, 10, 20}. If the total amount received is m, does X receive a coin of denomination 5?\nStatement I: m is not a prime number.\nStatement II: The sum of the digits of m is greater than 5.",["Statement I alone is sufficient, but II is not","Statement II alone is sufficient, but I is not","Both statements together are sufficient, but neither alone is","Neither statement is sufficient, even together"],0],
+[62,"[Data Sufficiency] For two distinct real numbers x and y, which of them is bigger?\nStatement I: x² < y < 1\nStatement II: y < √x < 1",["Statement I alone is sufficient, but II is not","Statement II alone is sufficient, but I is not","Both statements together are sufficient, but neither alone is","Neither statement is sufficient, even together"],3],
+[63,"[Data Sufficiency] If x and y are integers, is x even?\nStatement I: x²y² is even.\nStatement II: 1 + x² + y² is odd.",["Statement I alone is sufficient, but II is not","Statement II alone is sufficient, but I is not","Both statements together are sufficient, but neither alone is","Neither statement is sufficient, even together"],2],
+[64,"[Data Sufficiency] X is a collection of certain odd numbers, Y a collection of certain even numbers. T consists of numbers all from X or Y. Is every number of T from Y?\nStatement I: The sum of any two numbers in T is even.\nStatement II: If both p and q are picked from T, then (p−1)q is even.",["Statement I alone is sufficient, but II is not","Statement II alone is sufficient, but I is not","Both statements together are sufficient, but neither alone is","Neither statement is sufficient, even together"],3],
+[65,"[Data Sufficiency] If x, y and z are integers, each greater than 1, is x a prime number?\nStatement I: xy² = 116\nStatement II: xz = 261",["Statement I alone is sufficient, but II is not","Statement II alone is sufficient, but I is not","Both statements together are sufficient, but neither alone is","Neither statement is sufficient, even together"],0],
+[66,"[Passage: Kalagram, Maha Kumbh cultural village] Which of the following conclusions are valid?\n1. Seven Sanskriti Angans, representing different regions of India, had been showcased in Kalagram.\n2. Regional artistry was recognised via inspiration drawn from iconic temples.\n3. India's ancient history had been crafted by the contemporary craftsmanship of 230 artisans into creations to behold.\n4. Art forms from all regions of India had been showcased in these living galleries.",["1 and 2 only","2, 3 and 4","1, 2 and 4","1 and 3"],0],
+[67,"Which one of the following statements is NOT correct?",["Paintings from four States of India have been mentioned.","Stepping into Kalagram is likened to stepping into another world.","The Angans have been described as living galleries.","Kalagram is divided into thematic zones, inspired by well-known temples of India."],0],
+[68,"The weight of X, in kg, is denoted by X. Weights of A, B, C, D, P, Q, R and S are measured:\nA+B+C+D=17, A+C=6, P+Q+S+D=15, P+Q+R+B=17, P=R and Q=S.\nWhich one of the following statements is correct?",["B and D together weigh less than the total weight of P and Q.","P and Q together weigh more than the total weight of A and C.","P weighs more than Q.","Q weighs more than P."],1],
+[69,"How many words can be formed by shuffling the letters of QUEUE, if Q is always followed by U? (Words need not have meaning.)",["6","8","10","12"],3],
+[70,"X, Y and Z jump forward 4', 6' and 5' respectively. At 8 AM, they all land on mark 199'. How many times will they all land on the same mark (need not be at the same moment) between mark 195' and 1000', if all cross mark 1000' by 9 AM?",["11","12","13","14"],3],
+[71,"[Passage: Sport as a way of life] Which of the following conclusions is/are valid?\n1. Sport is more than just games; it is a way of life.\n2. Sport can help mitigate problems of seclusion among the young.\n3. Earning laurels in sport can help one secure a job on the basis of an assigned quota.\n4. Standard corporate sector skills cannot be learnt through sport.",["1 and 3 only","2 and 4 only","1, 2 and 4","1, 2 and 3"],3],
+[72,"Which of the following statements is/are correct?\n1. Parents are not encouraging enough when it comes to children playing sport.\n2. Participation in sporting activities can help develop life skills.\n3. Sport as a way of life can help evolve the very nature of society itself.",["1 and 3","2 and 3","2 only","3 only"],1],
+[73,"A toy T jumps forward 5' or backward 2'. If in 31 jumps, T moves exactly 15' forward net, what is the difference between the number of forward and backward jumps?",["6","7","8","9"],3],
+[74,"Eight persons P, Q, R, S, T, U, V, W sit around a round table with equal spacing. Both P and R are adjacent to Q. Both T and R are adjacent to S. Both U and W are adjacent to V. S and W sit opposite each other. If going clockwise from P, one meets R before T, how many persons shall Q cross moving clockwise before meeting W?",["5","4","2","1"],0],
+[75,"A rectangular table top is 6'×10'. Two rectangular portions, each 2.5'×8', are painted blue, each sharing exactly two sides with two edges of the table top. The table is fixed to the ground and the rest is painted white. How many different patterns are possible when observed from above?",["2","4","6","8"],1],
+[76,"[Passage: 'Double deflation' in national accounts] Which of the following statements is/are correct?\n1. Real value should not change if output cost is static and quantities unchanged despite falling oil prices.\n2. Deflators are to be used separately for inputs and outputs, and this is a practice universally adopted by all economies.",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],3],
+[77,"Which of the following presumption/presumptions is/are valid?\n1. Deflation strategies can be used to make manufacturers appear to be doing better than they actually are.\n2. When input and output prices are both deflated against a single input price, it is referred to as 'double deflation'.",["1 only","2 only","Both 1 and 2","Neither 1 nor 2"],0],
+[78,"A pattern formed by two characters a and b is repeated more than once in the string: ×b×a×a××a×a×bab. What is ×× in the 7th and 8th positions from the left?",["aa","ab","ba","bb"],3],
+[79,"If 10^m × 1000 × n = 75^25 × 25^32 × 32^75, where n is not divisible by 10, what is the value of m?",["101","111","121","131"],1],
+[80,"The speed of a train T is 100 km/h and the speed of a person P is 4 km/h. T crosses P in 15 seconds if P moves along T's direction. If P moves in the opposite direction, in how much time (seconds, approx.) does T cross P?",["13.51","13.65","13.85","14.05"],2]
+];
+
+/* =============== APP LOGIC =============== */
+let selectedPaper = null;
+let selectedOrder = 'seq';
+let quizQuestions = [];
+let userAnswers = {};
+let currentIndex = 0;
+
+const setupScreen = document.getElementById('setupScreen');
+const quizScreen = document.getElementById('quizScreen');
+const resultScreen = document.getElementById('resultScreen');
+
+document.querySelectorAll('#paperChoice .pill-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#paperChoice .pill-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedPaper = btn.dataset.paper;
+  });
+});
+document.querySelectorAll('#orderChoice .pill-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#orderChoice .pill-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedOrder = btn.dataset.order;
+  });
+});
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  if(!selectedPaper){
+    alert('Please select a paper to begin.');
+    return;
+  }
+  let qs = [];
+  if(selectedPaper==='1') qs = PAPER1.map(q=>({paper:'I',n:q[0],q:q[1],opts:q[2],ans:q[3]}));
+  else if(selectedPaper==='2') qs = PAPER2.map(q=>({paper:'II',n:q[0],q:q[1],opts:q[2],ans:q[3]}));
+  else {
+    qs = PAPER1.map(q=>({paper:'I',n:q[0],q:q[1],opts:q[2],ans:q[3]}))
+        .concat(PAPER2.map(q=>({paper:'II',n:q[0],q:q[1],opts:q[2],ans:q[3]})));
+  }
+  if(selectedOrder==='shuffle') qs = shuffle(qs);
+  quizQuestions = qs;
+  userAnswers = {};
+  currentIndex = 0;
+  setupScreen.classList.add('hidden');
+  resultScreen.classList.add('hidden');
+  quizScreen.classList.remove('hidden');
+  buildJumpGrid();
+  renderQuestion();
+});
+
+function buildJumpGrid(){
+  const grid = document.getElementById('jumpGrid');
+  grid.innerHTML = '';
+  quizQuestions.forEach((q,i)=>{
+    const b = document.createElement('div');
+    b.className = 'jumpbtn';
+    b.textContent = i+1;
+    b.addEventListener('click', ()=>{ currentIndex=i; renderQuestion(); });
+    grid.appendChild(b);
+  });
+}
+
+function updateJumpGrid(){
+  const grid = document.getElementById('jumpGrid');
+  Array.from(grid.children).forEach((b,i)=>{
+    b.classList.toggle('answered', userAnswers[i]!==undefined);
+    b.classList.toggle('current', i===currentIndex);
+  });
+}
+
+function renderQuestion(){
+  const q = quizQuestions[currentIndex];
+  document.getElementById('qNum').textContent = `Paper ${q.paper} · Q${q.n}`;
+  document.getElementById('qCounter').textContent = `Question ${currentIndex+1} of ${quizQuestions.length}`;
+  document.getElementById('qText').textContent = q.q;
+  const wrap = document.getElementById('optsWrap');
+  wrap.innerHTML = '';
+  const letters = ['a','b','c','d'];
+  q.opts.forEach((opt,i)=>{
+    const div = document.createElement('label');
+    div.className = 'opt' + (userAnswers[currentIndex]===i ? ' selected' : '');
+    div.innerHTML = `<input type="radio" name="opt" ${userAnswers[currentIndex]===i?'checked':''}> <span>(${letters[i]}) ${opt}</span>`;
+    div.addEventListener('click', ()=>{
+      userAnswers[currentIndex] = i;
+      renderQuestion();
+      updateJumpGrid();
+    });
+    wrap.appendChild(div);
+  });
+  document.getElementById('progressBar').style.width = ((currentIndex+1)/quizQuestions.length*100)+'%';
+  document.getElementById('prevBtn').disabled = currentIndex===0;
+  document.getElementById('nextBtn').textContent = currentIndex===quizQuestions.length-1 ? 'Next →' : 'Next →';
+  updateJumpGrid();
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(currentIndex>0){ currentIndex--; renderQuestion(); }
+});
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  if(currentIndex<quizQuestions.length-1){ currentIndex++; renderQuestion(); }
+});
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  delete userAnswers[currentIndex];
+  renderQuestion();
+});
+document.getElementById('submitBtn').addEventListener('click', ()=>{
+  const unanswered = quizQuestions.length - Object.keys(userAnswers).length;
+  if(unanswered>0){
+    if(!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) return;
+  }
+  showResults();
+});
+
+function showResults(){
+  let correct=0, wrong=0, skipped=0;
+  const reviewHtml = [];
+  quizQuestions.forEach((q,i)=>{
+    const ua = userAnswers[i];
+    const letters=['a','b','c','d'];
+    let status;
+    if(ua===undefined){ skipped++; status='skipped'; }
+    else if(ua===q.ans){ correct++; status='correct'; }
+    else { wrong++; status='wrong'; }
+
+    let optsHtml = q.opts.map((opt,j)=>{
+      let cls = 'review-opt';
+      if(j===q.ans) cls+=' correct-ans';
+      else if(j===ua) cls+=' your-wrong';
+      return `<div class="${cls}">(${letters[j]}) ${opt}${j===q.ans?' ✓ Correct answer':''}${(j===ua && j!==q.ans)?' ✗ Your answer':''}</div>`;
+    }).join('');
+
+    reviewHtml.push(`<div class="review-item ${status}">
+      <div class="review-q">Paper ${q.paper} · Q${q.n}. ${q.q}</div>
+      ${optsHtml}
+    </div>`);
+  });
+
+  const score = (correct*1 - wrong*(1/3));
+  const scoreDisplay = Math.round(score*1000)/1000;
+
+  document.getElementById('statCorrect').textContent = correct;
+  document.getElementById('statWrong').textContent = wrong;
+  document.getElementById('statSkipped').textContent = skipped;
+  document.getElementById('statScore').textContent = scoreDisplay;
+  document.getElementById('statSummary').textContent =
+    `Attempted ${correct+wrong} of ${quizQuestions.length} questions. Score = (${correct} × 1) − (${wrong} × 0.333) = ${scoreDisplay} out of ${quizQuestions.length}.`;
+  document.getElementById('reviewWrap').innerHTML = reviewHtml.join('');
+
+  quizScreen.classList.add('hidden');
+  resultScreen.classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+
+document.getElementById('retryBtn').addEventListener('click', ()=>{
+  resultScreen.classList.add('hidden');
+  setupScreen.classList.remove('hidden');
+});
+</script>
+</body>
+</html>
